@@ -1,111 +1,791 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0b0d12">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <meta
+    name="theme-color"
+    content="#080a0f"
+  >
+
+  <meta
+    name="description"
+    content="Watch amazing videos and discover trending content."
+  >
+
   <title>Video Hub</title>
-  <link rel="stylesheet" href="style.css">
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+
 </head>
 
 <body>
 
+  <!-- =========================
+       TOP BAR
+  ========================== -->
+
   <header class="topbar">
+
     <div class="brand">
-      <div class="brand-icon">▶</div>
-      <div>
-        <strong>Video Hub</strong>
-        <small>Watch & Discover</small>
+
+      <div class="brand-icon">
+        ▶
       </div>
+
+      <div>
+
+        <strong id="siteName">
+          Video Hub
+        </strong>
+
+        <small>
+          Watch & Discover
+        </small>
+
+      </div>
+
     </div>
 
-    <button class="notification-btn" onclick="openNotifications()">🔔</button>
+
+    <div
+      style="
+        display:flex;
+        align-items:center;
+        gap:8px;
+      "
+    >
+
+      <div
+        id="coinDisplay"
+        style="
+          display:flex;
+          align-items:center;
+          gap:5px;
+          padding:8px 10px;
+          border-radius:12px;
+          background:#202630;
+          font-size:12px;
+          font-weight:bold;
+        "
+      >
+
+        🪙
+        <span id="coinBalance">
+          0
+        </span>
+
+      </div>
+
+
+      <button
+        class="notification-btn"
+        type="button"
+        onclick="openNotifications()"
+      >
+        🔔
+      </button>
+
+    </div>
+
   </header>
+
+
+  <!-- =========================
+       MAIN
+  ========================== -->
 
   <main>
 
+
+    <!-- WELCOME -->
+
     <section class="welcome">
+
       <div>
-        <span class="welcome-label">WELCOME</span>
-        <h1>Discover amazing videos 🎬</h1>
-        <p>Watch the latest and trending videos in one place.</p>
+
+        <span class="welcome-label">
+          WELCOME
+        </span>
+
+        <h1 id="welcomeTitle">
+          Discover amazing videos 🎬
+        </h1>
+
+        <p id="welcomeDescription">
+          Watch the latest and trending videos in one place.
+        </p>
+
       </div>
+
     </section>
 
-    <div class="categories">
-      <button class="category active">All</button>
-      <button class="category">🔥 Trending</button>
-      <button class="category">😂 Comedy</button>
-      <button class="category">🎬 Movies</button>
-      <button class="category">⚡ Shorts</button>
-    </div>
+
+    <!-- =========================
+         PREMIUM STATUS
+    ========================== -->
+
+    <section
+      id="premiumCard"
+      style="
+        display:none;
+        margin:15px;
+        padding:20px;
+        border-radius:20px;
+        background:
+          linear-gradient(
+            135deg,
+            #34245f,
+            #171126
+          );
+        border:1px solid
+          rgba(160,120,255,.3);
+      "
+    >
+
+      <div
+        style="
+          display:flex;
+          align-items:center;
+          gap:12px;
+        "
+      >
+
+        <div
+          style="
+            width:48px;
+            height:48px;
+            border-radius:15px;
+            display:grid;
+            place-items:center;
+            background:rgba(255,255,255,.1);
+            font-size:24px;
+          "
+        >
+          👑
+        </div>
+
+        <div>
+
+          <strong
+            style="
+              font-size:18px;
+            "
+          >
+            Premium Active
+          </strong>
+
+          <p
+            style="
+              margin-top:3px;
+              color:#bcb3d5;
+              font-size:11px;
+            "
+          >
+            Your Premium Membership is active
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div
+        id="premiumFacilities"
+        style="
+          margin-top:18px;
+          display:grid;
+          gap:9px;
+          font-size:12px;
+          color:#ddd6ef;
+        "
+      >
+
+        <div>✅ 100% Ad-Free</div>
+
+        <div>✅ No Direct-Link Ads</div>
+
+        <div>✅ No Video Ads</div>
+
+        <div>✅ No Banner Ads</div>
+
+        <div>✅ No Ad Interruptions</div>
+
+        <div>✅ Smooth Video Watching</div>
+
+        <div>✅ Premium Content Access</div>
+
+      </div>
+
+
+      <div
+        id="premiumInfo"
+        style="
+          margin-top:16px;
+          padding-top:14px;
+          border-top:1px solid
+            rgba(255,255,255,.1);
+          color:#aaa1c2;
+          font-size:11px;
+        "
+      ></div>
+
+    </section>
+
+
+    <!-- =========================
+         FREE USER COIN AREA
+    ========================== -->
+
+    <section
+      id="coinArea"
+      style="
+        margin:15px;
+        padding:18px;
+        border-radius:18px;
+        background:#141820;
+        border:1px solid #222833;
+      "
+    >
+
+      <div
+        style="
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          gap:12px;
+        "
+      >
+
+        <div>
+
+          <strong
+            style="
+              font-size:16px;
+            "
+          >
+            🪙 Earn Coins
+          </strong>
+
+          <p
+            style="
+              margin-top:5px;
+              color:#8f97a5;
+              font-size:11px;
+            "
+          >
+            Watch ads and collect coins.
+          </p>
+
+        </div>
+
+
+        <strong
+          id="coinBalanceLarge"
+          style="
+            font-size:20px;
+          "
+        >
+          0 🪙
+        </strong>
+
+      </div>
+
+
+      <div
+        style="
+          display:grid;
+          grid-template-columns:
+            repeat(2,1fr);
+          gap:9px;
+          margin-top:15px;
+        "
+      >
+
+        <button
+          id="watchAdButton"
+          class="watch-button"
+          type="button"
+          onclick="watchRewardedAd()"
+        >
+          ▶ Watch Ad
+          <br>
+          <small>
+            +25 Coins
+          </small>
+        </button>
+
+
+        <button
+          class="watch-button"
+          type="button"
+          onclick="openDailyClaim()"
+        >
+          🎁 Daily Claim
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         CATEGORIES
+    ========================== -->
+
+    <div
+      id="categories"
+      class="categories"
+    ></div>
+
+
+    <!-- =========================
+         SECTION TITLE
+    ========================== -->
 
     <section class="section-title">
+
       <div>
-        <h2>🔥 Trending Videos</h2>
-        <p>Popular videos right now</p>
+
+        <h2 id="featuredTitle">
+          🔥 Trending Videos
+        </h2>
+
+        <p>
+          Popular videos right now
+        </p>
+
       </div>
-      <button onclick="showAllVideos()">See All</button>
+
+      <button
+        type="button"
+        onclick="showAllVideos()"
+      >
+        See All
+      </button>
+
     </section>
 
-    <section id="videoGrid" class="video-grid"></section>
+
+    <!-- =========================
+         VIDEO GRID
+    ========================== -->
+
+    <section
+      id="videoGrid"
+      class="video-grid"
+    ></section>
+
+
+    <!-- =========================
+         PREMIUM PURCHASE
+    ========================== -->
+
+    <section
+      id="premiumPurchase"
+      style="
+        margin:15px;
+        padding:20px;
+        border-radius:20px;
+        background:
+          linear-gradient(
+            135deg,
+            #171c29,
+            #10131b
+          );
+        border:1px solid #292f3a;
+      "
+    >
+
+      <div>
+
+        <span
+          style="
+            font-size:10px;
+            color:#8f97a5;
+          "
+        >
+          PREMIUM MEMBERSHIP
+        </span>
+
+        <h2
+          style="
+            margin-top:6px;
+            font-size:19px;
+          "
+        >
+          👑 Go Premium
+        </h2>
+
+        <p
+          style="
+            margin-top:7px;
+            color:#929aaa;
+            font-size:12px;
+            line-height:1.6;
+          "
+        >
+          Enjoy videos without banner ads,
+          direct-link ads or video interruptions.
+        </p>
+
+      </div>
+
+
+      <div
+        id="premiumPlans"
+        style="
+          margin-top:15px;
+          display:grid;
+          gap:10px;
+        "
+      ></div>
+
+    </section>
 
   </main>
 
-  <div id="videoModal" class="modal">
-    <div class="modal-content">
-      <button class="close" onclick="closeVideo()">✕</button>
 
-      <div class="player">
-        <div class="play-icon">▶</div>
+  <!-- =========================
+       VIDEO MODAL
+  ========================== -->
+
+  <div
+    id="videoModal"
+    class="modal"
+  >
+
+    <div class="modal-content">
+
+      <button
+        class="close"
+        type="button"
+        onclick="closeVideo()"
+      >
+        ✕
+      </button>
+
+
+      <div
+        id="videoPlayerArea"
+        class="player"
+      >
+
+        <div class="play-icon">
+          ▶
+        </div>
+
       </div>
 
-      <h2 id="modalTitle">Video Title</h2>
-      <p id="modalInfo">Video information</p>
 
-      <button class="watch-btn">▶ Start Watching</button>
+      <h2 id="modalTitle">
+        Video Title
+      </h2>
+
+
+      <p id="modalInfo">
+        Video information
+      </p>
+
+
+      <div
+        id="videoAdNotice"
+        style="
+          display:none;
+          margin-top:12px;
+          padding:10px;
+          border-radius:10px;
+          background:#202630;
+          color:#aaa;
+          font-size:11px;
+        "
+      ></div>
+
+
+      <button
+        id="startWatchButton"
+        class="watch-btn"
+        type="button"
+        onclick="startWatching()"
+      >
+        ▶ Start Watching
+      </button>
+
     </div>
+
   </div>
 
-  <div id="notificationModal" class="modal">
-    <div class="modal-content notification-box">
-      <button class="close" onclick="closeNotifications()">✕</button>
-      <h2>🔔 Notifications</h2>
-      <p>No new notifications right now.</p>
+
+  <!-- =========================
+       DAILY CLAIM MODAL
+  ========================== -->
+
+  <div
+    id="dailyClaimModal"
+    class="modal"
+  >
+
+    <div class="modal-content">
+
+      <button
+        class="close"
+        type="button"
+        onclick="closeDailyClaim()"
+      >
+        ✕
+      </button>
+
+
+      <h2>
+        🎁 Daily Coin Claim
+      </h2>
+
+
+      <p>
+        Complete the required ad step,
+        then claim today's reward.
+      </p>
+
+
+      <div
+        id="dailyRewards"
+        style="
+          margin-top:16px;
+          display:grid;
+          gap:8px;
+        "
+      ></div>
+
+
+      <button
+        id="dailyClaimButton"
+        class="watch-btn"
+        type="button"
+        onclick="claimDailyReward()"
+      >
+        🎁 Claim Today's Coins
+      </button>
+
     </div>
+
   </div>
+
+
+  <!-- =========================
+       PREMIUM PAYMENT MODAL
+  ========================== -->
+
+  <div
+    id="premiumPaymentModal"
+    class="modal"
+  >
+
+    <div class="modal-content">
+
+      <button
+        class="close"
+        type="button"
+        onclick="closePremiumPayment()"
+      >
+        ✕
+      </button>
+
+
+      <h2>
+        👑 Premium Purchase
+      </h2>
+
+
+      <div
+        id="selectedPremiumPlan"
+        style="
+          margin-top:12px;
+          padding:14px;
+          border-radius:12px;
+          background:#202630;
+        "
+      ></div>
+
+
+      <div
+        style="
+          margin-top:15px;
+          display:grid;
+          gap:10px;
+        "
+      >
+
+        <button
+          id="bkashButton"
+          class="watch-btn"
+          type="button"
+        >
+          💗 Pay with bKash
+        </button>
+
+
+        <button
+          id="nagadButton"
+          class="watch-btn"
+          type="button"
+        >
+          🟠 Pay with Nagad
+        </button>
+
+
+        <button
+          id="telegramPurchaseButton"
+          class="watch-btn"
+          type="button"
+        >
+          ✈️ Contact on Telegram
+        </button>
+
+
+        <button
+          id="whatsappPurchaseButton"
+          class="watch-btn"
+          type="button"
+        >
+          💬 Contact on WhatsApp
+        </button>
+
+      </div>
+
+
+      <p
+        style="
+          margin-top:14px;
+          color:#8f97a5;
+          font-size:11px;
+          line-height:1.6;
+        "
+      >
+        After payment, contact the administrator
+        with your payment screenshot or transaction
+        information. Premium activation is completed
+        manually by the administrator.
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================
+       NOTIFICATIONS
+  ========================== -->
+
+  <div
+    id="notificationModal"
+    class="modal"
+  >
+
+    <div
+      class="
+        modal-content
+        notification-box
+      "
+    >
+
+      <button
+        class="close"
+        type="button"
+        onclick="closeNotifications()"
+      >
+        ✕
+      </button>
+
+      <h2>
+        🔔 Notifications
+      </h2>
+
+      <div
+        id="notificationList"
+        style="
+          margin-top:15px;
+        "
+      >
+        No new notifications.
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================
+       BOTTOM NAV
+  ========================== -->
 
   <nav class="bottom-nav">
 
-    <button class="nav-item active">
+    <button
+      class="nav-item active"
+      type="button"
+      onclick="showHome()"
+    >
       <span>🏠</span>
       <small>Home</small>
     </button>
 
-    <button class="nav-item">
+
+    <button
+      class="nav-item"
+      type="button"
+      onclick="showAllVideos()"
+    >
       <span>🎬</span>
       <small>Videos</small>
     </button>
 
-    <button class="nav-item">
+
+    <button
+      class="nav-item"
+      type="button"
+      onclick="showTrending()"
+    >
       <span>🔥</span>
       <small>Trending</small>
     </button>
 
-    <button class="nav-item">
+
+    <button
+      class="nav-item"
+      type="button"
+      onclick="scrollToCoins()"
+    >
       <span>🪙</span>
       <small>Coins</small>
     </button>
 
-    <button class="nav-item">
+
+    <button
+      class="nav-item"
+      type="button"
+      onclick="openProfile()"
+    >
       <span>👤</span>
       <small>Profile</small>
     </button>
 
   </nav>
 
+
+  <script src="config.js"></script>
+
   <script src="app.js"></script>
 
 </body>
+
 </html>
