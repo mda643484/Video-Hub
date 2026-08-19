@@ -3,16 +3,122 @@
 /*
 =========================================================
  ADMIN PANEL - MAIN JAVASCRIPT
+ API CONNECTED VERSION
 =========================================================
 
-Frontend configuration/settings manager.
-
-IMPORTANT:
-- Do NOT put real admin passwords, bot tokens or API secrets here.
-- Production coin balances/rewards must be verified server-side.
-- Ad networks must be used according to their policies.
+🔴 গুরুত্বপূর্ণ:
+1. নিচের API_BASE_URL-এ তোমার Backend/API URL বসাও।
+2. API key / secret এই ফাইলে বসাবে না।
+3. API key/secret Backend/Server-side-এ থাকবে।
+4. API endpoint তোমার Database/Backend অনুযায়ী হতে হবে.
 =========================================================
 */
+
+
+/* =======================================================
+   🔴 API CONNECTION
+======================================================= */
+
+// 🔴 এখানে তোমার API / Backend URL বসাও
+const API_BASE_URL = "sb_publishable_2xAQFQ3_oNhVEdard3MJtA_YoRX5Ish";
+
+
+/*
+ * API request helper
+ *
+ * উদাহরণ:
+ * apiRequest("/config")
+ * apiRequest("/videos")
+ */
+
+async function apiRequest(endpoint, options = {}) {
+
+  if (
+    !API_BASE_URL ||
+    API_BASE_URL === "https://ounhudbdznqgfwmvpczk.supabase.co"
+  ) {
+
+    throw new Error(
+      "https://ounhudbdznqgfwmvpczk.supabase.co"
+    );
+
+  }
+
+
+  const url =
+    `${API_BASE_URL.replace(/\/+$/, "")}/${endpoint.replace(/^\/+/, "")}`;
+
+
+  const defaultHeaders = {
+
+    "Content-Type":
+      "application/json"
+
+  };
+
+
+  const response =
+    await fetch(
+      url,
+      {
+        ...options,
+
+        headers: {
+          ...defaultHeaders,
+          ...(options.headers || {})
+        }
+      }
+    );
+
+
+  if (!response.ok) {
+
+    let message =
+      `API Error: ${response.status}`;
+
+    try {
+
+      const errorData =
+        await response.json();
+
+      if (errorData?.message) {
+
+        message =
+          errorData.message;
+
+      }
+
+    } catch {
+      // Ignore invalid JSON response
+    }
+
+
+    throw new Error(message);
+
+  }
+
+
+  const contentType =
+    response.headers.get(
+      "content-type"
+    );
+
+
+  if (
+    contentType &&
+    contentType.includes(
+      "application/json"
+    )
+  ) {
+
+    return response.json();
+
+  }
+
+
+  return response.text();
+
+}
 
 
 /* =======================================================
@@ -22,8 +128,11 @@ IMPORTANT:
 const DEFAULT_CONFIG = {
 
   coins: {
+
     watchAdEnabled: true,
+
     adReward: 25,
+
     dailyAdLimit: 20,
 
     videoClaimCost: 50,
@@ -41,57 +150,86 @@ const DEFAULT_CONFIG = {
     ],
 
     dailyClaimAdEnabled: true,
+
     dailyClaimAdUrl: "",
 
     referralEnabled: true,
+
     referrerReward: 100,
+
     newUserBonus: 50
+
   },
 
 
   ads: {
+
     bannerEnabled: false,
+
     bannerCode: "",
 
     directLinkEnabled: false,
+
     directLinkUrl: "",
 
     popunderEnabled: false,
+
     popunderCode: "",
 
     socialBarEnabled: false,
+
     socialBarCode: "",
 
     videoEnabled: false,
+
     videoCode: "",
+
     videoDelay: 30,
 
     interstitialEnabled: false,
+
     interstitialCode: "",
 
     customEnabled: false,
+
     customCode: ""
+
   },
 
 
   homepage: {
+
     websiteName: "",
+
     welcomeTitle: "",
+
     welcomeDescription: "",
+
     announcement: "",
+
     featuredTitle: "",
+
     categoryTitle: "",
+
     telegramButtonText: "",
+
     telegramLink: "",
+
     footerText: ""
+
   },
 
 
   settings: {
+
     siteStatus: "online",
+
     adminEmail: "",
+
     sessionTimeout: 30
+
   }
+
 };
 
 
@@ -101,13 +239,17 @@ const DEFAULT_CONFIG = {
 
 const STORAGE_KEYS = {
 
-  config: "adminPanelConfig",
+  config:
+    "adminPanelConfig",
 
-  videos: "adminVideos",
+  videos:
+    "adminVideos",
 
-  categories: "adminCategories",
+  categories:
+    "adminCategories",
 
-  notifications: "adminNotifications"
+  notifications:
+    "adminNotifications"
 
 };
 
@@ -119,43 +261,10 @@ const STORAGE_KEYS = {
 function cloneDefaultConfig() {
 
   return JSON.parse(
-    JSON.stringify(DEFAULT_CONFIG)
+    JSON.stringify(
+      DEFAULT_CONFIG
+    )
   );
-
-}
-
-
-function loadConfig() {
-
-  try {
-
-    const saved = localStorage.getItem(
-      STORAGE_KEYS.config
-    );
-
-    if (!saved) {
-
-      return cloneDefaultConfig();
-
-    }
-
-    const parsed = JSON.parse(saved);
-
-    return mergeObjects(
-      cloneDefaultConfig(),
-      parsed
-    );
-
-  } catch (error) {
-
-    console.error(
-      "Could not load configuration:",
-      error
-    );
-
-    return cloneDefaultConfig();
-
-  }
 
 }
 
@@ -166,45 +275,47 @@ function mergeObjects(base, extra) {
     ...base
   };
 
-  Object.keys(extra || {}).forEach(key => {
 
-    if (
-      extra[key] &&
-      typeof extra[key] === "object" &&
-      !Array.isArray(extra[key]) &&
-      typeof base[key] === "object" &&
-      base[key] !== null
-    ) {
+  Object.keys(extra || {})
+    .forEach(key => {
 
-      result[key] = mergeObjects(
-        base[key],
-        extra[key]
-      );
+      if (
 
-    } else {
+        extra[key] &&
 
-      result[key] = extra[key];
+        typeof extra[key] === "object" &&
 
-    }
+        !Array.isArray(extra[key]) &&
 
-  });
+        typeof base[key] === "object" &&
+
+        base[key] !== null
+
+      ) {
+
+        result[key] =
+          mergeObjects(
+            base[key],
+            extra[key]
+          );
+
+      } else {
+
+        result[key] =
+          extra[key];
+
+      }
+
+    });
+
 
   return result;
 
 }
 
 
-let config = loadConfig();
-
-
-function saveConfig() {
-
-  localStorage.setItem(
-    STORAGE_KEYS.config,
-    JSON.stringify(config)
-  );
-
-}
+let config =
+  cloneDefaultConfig();
 
 
 function getElement(id) {
@@ -216,12 +327,15 @@ function getElement(id) {
 
 function setValue(id, value) {
 
-  const element = getElement(id);
+  const element =
+    getElement(id);
 
   if (!element) return;
 
+
   element.value =
-    value === undefined || value === null
+    value === undefined ||
+    value === null
       ? ""
       : value;
 
@@ -230,22 +344,31 @@ function setValue(id, value) {
 
 function setChecked(id, value) {
 
-  const element = getElement(id);
+  const element =
+    getElement(id);
 
   if (!element) return;
 
-  element.checked = Boolean(value);
+
+  element.checked =
+    Boolean(value);
 
 }
 
 
 function getNumber(id, fallback = 0) {
 
-  const element = getElement(id);
+  const element =
+    getElement(id);
 
   if (!element) return fallback;
 
-  const value = Number(element.value);
+
+  const value =
+    Number(
+      element.value
+    );
+
 
   return Number.isFinite(value)
     ? value
@@ -256,7 +379,9 @@ function getNumber(id, fallback = 0) {
 
 function getText(id) {
 
-  const element = getElement(id);
+  const element =
+    getElement(id);
+
 
   return element
     ? element.value.trim()
@@ -265,9 +390,14 @@ function getText(id) {
 }
 
 
-function showToast(message, type = "success") {
+function showToast(
+  message,
+  type = "success"
+) {
 
-  const toast = getElement("toast");
+  const toast =
+    getElement("toast");
+
 
   if (!toast) {
 
@@ -277,21 +407,139 @@ function showToast(message, type = "success") {
 
   }
 
-  toast.textContent = message;
 
-  toast.dataset.type = type;
+  toast.textContent =
+    message;
 
-  toast.classList.add("show");
+  toast.dataset.type =
+    type;
+
+  toast.classList.add(
+    "show"
+  );
+
 
   clearTimeout(
     showToast.timer
   );
 
-  showToast.timer = setTimeout(() => {
 
-    toast.classList.remove("show");
+  showToast.timer =
+    setTimeout(
+      () => {
 
-  }, 3000);
+        toast.classList.remove(
+          "show"
+        );
+
+      },
+      3000
+    );
+
+}
+
+
+/* =======================================================
+   LOAD CONFIG FROM API
+======================================================= */
+
+async function loadConfigFromAPI() {
+
+  try {
+
+    const data =
+      await apiRequest(
+        "/config",
+        {
+          method: "GET"
+        }
+      );
+
+
+    if (data) {
+
+      config =
+        mergeObjects(
+          cloneDefaultConfig(),
+          data
+        );
+
+    }
+
+
+    return config;
+
+  } catch (error) {
+
+    console.warn(
+      "API config load failed:",
+      error
+    );
+
+
+    /*
+     * API এখনো কানেক্ট না থাকলেও
+     * Admin Panel যাতে সম্পূর্ণ বন্ধ না হয়ে যায়,
+     * তাই default configuration ব্যবহার করা হচ্ছে।
+     */
+
+    config =
+      cloneDefaultConfig();
+
+
+    return config;
+
+  }
+
+}
+
+
+/* =======================================================
+   SAVE CONFIG TO API
+======================================================= */
+
+async function saveConfig() {
+
+  try {
+
+    await apiRequest(
+      "/config",
+      {
+        method: "PUT",
+
+        body:
+          JSON.stringify(
+            config
+          )
+      }
+    );
+
+
+    showToast(
+      "Settings saved successfully."
+    );
+
+
+    return true;
+
+  } catch (error) {
+
+    console.error(
+      "Config save failed:",
+      error
+    );
+
+
+    showToast(
+      "API save failed: " +
+      error.message,
+      "error"
+    );
+
+
+    return false;
+
+  }
 
 }
 
@@ -315,6 +563,7 @@ function showPage(pageId) {
 
   const target =
     getElement(pageId);
+
 
   if (target) {
 
@@ -358,6 +607,7 @@ function setupNavigation() {
           const page =
             button.dataset.page;
 
+
           if (page) {
 
             showPage(page);
@@ -383,6 +633,7 @@ function setupNavigation() {
           const page =
             button.dataset.pageTarget;
 
+
           if (page) {
 
             showPage(page);
@@ -404,14 +655,19 @@ function setupNavigation() {
 function setupMobileMenu() {
 
   const button =
-    getElement("mobileMenu");
+    getElement(
+      "mobileMenu"
+    );
+
 
   const sidebar =
     document.querySelector(
       ".sidebar"
     );
 
-  if (!button || !sidebar) return;
+
+  if (!button || !sidebar)
+    return;
 
 
   button.addEventListener(
@@ -518,7 +774,7 @@ function loadCoinSettings() {
 }
 
 
-function saveCoinSettings() {
+async function saveCoinSettings() {
 
   config.coins.watchAdEnabled =
     Boolean(
@@ -608,12 +864,6 @@ function saveCoinSettings() {
     );
 
 
-  /*
-   * Fixed 7-day reward.
-   * These values are intentionally not editable
-   * from the frontend.
-   */
-
   config.coins.dailyRewards = [
     25,
     50,
@@ -625,12 +875,7 @@ function saveCoinSettings() {
   ];
 
 
-  saveConfig();
-
-
-  showToast(
-    "Coin settings saved successfully."
-  );
+  await saveConfig();
 
 }
 
@@ -650,6 +895,7 @@ function loadAdSettings() {
     ads.bannerEnabled
   );
 
+
   setValue(
     "bannerAdCode",
     ads.bannerCode
@@ -660,6 +906,7 @@ function loadAdSettings() {
     "directLinkEnabled",
     ads.directLinkEnabled
   );
+
 
   setValue(
     "directLinkUrl",
@@ -672,6 +919,7 @@ function loadAdSettings() {
     ads.popunderEnabled
   );
 
+
   setValue(
     "popunderCode",
     ads.popunderCode
@@ -682,6 +930,7 @@ function loadAdSettings() {
     "socialBarEnabled",
     ads.socialBarEnabled
   );
+
 
   setValue(
     "socialBarCode",
@@ -694,10 +943,12 @@ function loadAdSettings() {
     ads.videoEnabled
   );
 
+
   setValue(
     "videoAdCode",
     ads.videoCode
   );
+
 
   setValue(
     "videoAdDelay",
@@ -710,6 +961,7 @@ function loadAdSettings() {
     ads.interstitialEnabled
   );
 
+
   setValue(
     "interstitialCode",
     ads.interstitialCode
@@ -721,6 +973,7 @@ function loadAdSettings() {
     ads.customEnabled
   );
 
+
   setValue(
     "customAdCode",
     ads.customCode
@@ -729,7 +982,7 @@ function loadAdSettings() {
 }
 
 
-function saveAdSettings() {
+async function saveAdSettings() {
 
   config.ads.bannerEnabled =
     Boolean(
@@ -737,6 +990,7 @@ function saveAdSettings() {
         "bannerAdEnabled"
       )?.checked
     );
+
 
   config.ads.bannerCode =
     getText(
@@ -751,6 +1005,7 @@ function saveAdSettings() {
       )?.checked
     );
 
+
   config.ads.directLinkUrl =
     getText(
       "directLinkUrl"
@@ -763,6 +1018,7 @@ function saveAdSettings() {
         "popunderEnabled"
       )?.checked
     );
+
 
   config.ads.popunderCode =
     getText(
@@ -777,6 +1033,7 @@ function saveAdSettings() {
       )?.checked
     );
 
+
   config.ads.socialBarCode =
     getText(
       "socialBarCode"
@@ -790,10 +1047,12 @@ function saveAdSettings() {
       )?.checked
     );
 
+
   config.ads.videoCode =
     getText(
       "videoAdCode"
     );
+
 
   config.ads.videoDelay =
     Math.max(
@@ -812,6 +1071,7 @@ function saveAdSettings() {
       )?.checked
     );
 
+
   config.ads.interstitialCode =
     getText(
       "interstitialCode"
@@ -825,18 +1085,14 @@ function saveAdSettings() {
       )?.checked
     );
 
+
   config.ads.customCode =
     getText(
       "customAdCode"
     );
 
 
-  saveConfig();
-
-
-  showToast(
-    "Ad settings saved successfully."
-  );
+  await saveConfig();
 
 }
 
@@ -856,40 +1112,48 @@ function loadHomepageSettings() {
     home.websiteName
   );
 
+
   setValue(
     "welcomeTitle",
     home.welcomeTitle
   );
+
 
   setValue(
     "welcomeDescription",
     home.welcomeDescription
   );
 
+
   setValue(
     "announcement",
     home.announcement
   );
+
 
   setValue(
     "featuredTitle",
     home.featuredTitle
   );
 
+
   setValue(
     "categoryTitle",
     home.categoryTitle
   );
+
 
   setValue(
     "telegramButtonText",
     home.telegramButtonText
   );
 
+
   setValue(
     "telegramLink",
     home.telegramLink
   );
+
 
   setValue(
     "footerText",
@@ -899,47 +1163,55 @@ function loadHomepageSettings() {
 }
 
 
-function saveHomepageSettings() {
+async function saveHomepageSettings() {
 
   config.homepage.websiteName =
     getText(
       "websiteName"
     );
 
+
   config.homepage.welcomeTitle =
     getText(
       "welcomeTitle"
     );
+
 
   config.homepage.welcomeDescription =
     getText(
       "welcomeDescription"
     );
 
+
   config.homepage.announcement =
     getText(
       "announcement"
     );
+
 
   config.homepage.featuredTitle =
     getText(
       "featuredTitle"
     );
 
+
   config.homepage.categoryTitle =
     getText(
       "categoryTitle"
     );
+
 
   config.homepage.telegramButtonText =
     getText(
       "telegramButtonText"
     );
 
+
   config.homepage.telegramLink =
     getText(
       "telegramLink"
     );
+
 
   config.homepage.footerText =
     getText(
@@ -947,12 +1219,7 @@ function saveHomepageSettings() {
     );
 
 
-  saveConfig();
-
-
-  showToast(
-    "Homepage settings saved."
-  );
+  await saveConfig();
 
 }
 
@@ -972,10 +1239,12 @@ function loadGeneralSettings() {
     settings.siteStatus
   );
 
+
   setValue(
     "adminEmail",
     settings.adminEmail
   );
+
 
   setValue(
     "adminSessionTimeout",
@@ -985,7 +1254,7 @@ function loadGeneralSettings() {
 }
 
 
-function saveGeneralSettings() {
+async function saveGeneralSettings() {
 
   config.settings.siteStatus =
     getText(
@@ -1009,12 +1278,7 @@ function saveGeneralSettings() {
     );
 
 
-  saveConfig();
-
-
-  showToast(
-    "General settings saved."
-  );
+  await saveConfig();
 
 }
 
@@ -1023,20 +1287,30 @@ function saveGeneralSettings() {
    CATEGORIES
 ======================================================= */
 
-function loadCategories() {
+async function loadCategories() {
 
   try {
 
-    const saved =
-      localStorage.getItem(
-        STORAGE_KEYS.categories
+    const data =
+      await apiRequest(
+        "/categories",
+        {
+          method: "GET"
+        }
       );
 
-    return saved
-      ? JSON.parse(saved)
+
+    return Array.isArray(data)
+      ? data
       : [];
 
-  } catch {
+  } catch (error) {
+
+    console.error(
+      "Could not load categories:",
+      error
+    );
+
 
     return [];
 
@@ -1045,28 +1319,39 @@ function loadCategories() {
 }
 
 
-function saveCategories(categories) {
+async function saveCategories(
+  categories
+) {
 
-  localStorage.setItem(
-    STORAGE_KEYS.categories,
-    JSON.stringify(categories)
+  return apiRequest(
+    "/categories",
+    {
+      method: "PUT",
+
+      body:
+        JSON.stringify(
+          categories
+        )
+    }
   );
 
 }
 
 
-function renderCategories() {
+async function renderCategories() {
 
   const container =
     getElement(
       "categoryList"
     );
 
-  if (!container) return;
+
+  if (!container)
+    return;
 
 
   const categories =
-    loadCategories();
+    await loadCategories();
 
 
   if (!categories.length) {
@@ -1086,32 +1371,33 @@ function renderCategories() {
 
   container.innerHTML =
     categories
-      .map((category, index) => {
+      .map(
+        (category, index) => {
 
-        const name =
-          escapeHtml(
-            category.name
-          );
+          return `
+            <div class="list-row">
 
-        return `
-          <div class="list-row">
+              <div>
+                <strong>
+                  ${escapeHtml(
+                    category.name
+                  )}
+                </strong>
+              </div>
 
-            <div>
-              <strong>${name}</strong>
+              <button
+                class="danger-btn"
+                type="button"
+                data-delete-category="${index}"
+              >
+                Delete
+              </button>
+
             </div>
+          `;
 
-            <button
-              class="danger-btn"
-              type="button"
-              data-delete-category="${index}"
-            >
-              Delete
-            </button>
-
-          </div>
-        `;
-
-      })
+        }
+      )
       .join("");
 
 
@@ -1123,14 +1409,18 @@ function renderCategories() {
 
       button.addEventListener(
         "click",
-        () => {
+        async () => {
 
           const index =
             Number(
-              button.dataset.deleteCategory
+              button.dataset
+                .deleteCategory
             );
 
-          deleteCategory(index);
+
+          await deleteCategory(
+            index
+          );
 
         }
       );
@@ -1140,13 +1430,16 @@ function renderCategories() {
 }
 
 
-function deleteCategory(index) {
+async function deleteCategory(
+  index
+) {
 
   const categories =
-    loadCategories();
+    await loadCategories();
 
 
-  if (!categories[index]) return;
+  if (!categories[index])
+    return;
 
 
   const confirmed =
@@ -1155,7 +1448,8 @@ function deleteCategory(index) {
     );
 
 
-  if (!confirmed) return;
+  if (!confirmed)
+    return;
 
 
   categories.splice(
@@ -1164,17 +1458,31 @@ function deleteCategory(index) {
   );
 
 
-  saveCategories(
-    categories
-  );
+  try {
+
+    await saveCategories(
+      categories
+    );
 
 
-  renderCategories();
-  populateCategorySelect();
+    await renderCategories();
 
-  showToast(
-    "Category deleted."
-  );
+    await populateCategorySelect();
+
+
+    showToast(
+      "Category deleted."
+    );
+
+  } catch (error) {
+
+    showToast(
+      "Category delete failed: " +
+      error.message,
+      "error"
+    );
+
+  }
 
 }
 
@@ -1185,6 +1493,7 @@ function openCategoryModal() {
     getElement(
       "categoryModal"
     );
+
 
   if (modal) {
 
@@ -1201,6 +1510,7 @@ function closeModal(id) {
 
   const modal =
     getElement(id);
+
 
   if (modal) {
 
@@ -1220,12 +1530,14 @@ function setupCategoryForm() {
       "categoryForm"
     );
 
-  if (!form) return;
+
+  if (!form)
+    return;
 
 
   form.addEventListener(
     "submit",
-    event => {
+    async event => {
 
       event.preventDefault();
 
@@ -1253,7 +1565,7 @@ function setupCategoryForm() {
 
 
       const categories =
-        loadCategories();
+        await loadCategories();
 
 
       const exists =
@@ -1287,24 +1599,39 @@ function setupCategoryForm() {
       });
 
 
-      saveCategories(
-        categories
-      );
+      try {
+
+        await saveCategories(
+          categories
+        );
 
 
-      renderCategories();
-      populateCategorySelect();
+        await renderCategories();
 
-      input.value = "";
-
-      closeModal(
-        "categoryModal"
-      );
+        await populateCategorySelect();
 
 
-      showToast(
-        "Category created."
-      );
+        input.value = "";
+
+
+        closeModal(
+          "categoryModal"
+        );
+
+
+        showToast(
+          "Category created."
+        );
+
+      } catch (error) {
+
+        showToast(
+          "Category save failed: " +
+          error.message,
+          "error"
+        );
+
+      }
 
     }
   );
@@ -1312,18 +1639,20 @@ function setupCategoryForm() {
 }
 
 
-function populateCategorySelect() {
+async function populateCategorySelect() {
 
   const select =
     getElement(
       "videoCategory"
     );
 
-  if (!select) return;
+
+  if (!select)
+    return;
 
 
   const categories =
-    loadCategories();
+    await loadCategories();
 
 
   select.innerHTML =
@@ -1338,11 +1667,14 @@ function populateCategorySelect() {
           "option"
         );
 
+
       option.value =
         category.id;
 
+
       option.textContent =
         category.name;
+
 
       select.appendChild(
         option
@@ -1358,20 +1690,30 @@ function populateCategorySelect() {
    VIDEOS
 ======================================================= */
 
-function loadVideos() {
+async function loadVideos() {
 
   try {
 
-    const saved =
-      localStorage.getItem(
-        STORAGE_KEYS.videos
+    const data =
+      await apiRequest(
+        "/videos",
+        {
+          method: "GET"
+        }
       );
 
-    return saved
-      ? JSON.parse(saved)
+
+    return Array.isArray(data)
+      ? data
       : [];
 
-  } catch {
+  } catch (error) {
+
+    console.error(
+      "Could not load videos:",
+      error
+    );
+
 
     return [];
 
@@ -1380,28 +1722,20 @@ function loadVideos() {
 }
 
 
-function saveVideos(videos) {
-
-  localStorage.setItem(
-    STORAGE_KEYS.videos,
-    JSON.stringify(videos)
-  );
-
-}
-
-
-function renderVideos() {
+async function renderVideos() {
 
   const container =
     getElement(
       "videoTable"
     );
 
-  if (!container) return;
+
+  if (!container)
+    return;
 
 
   const videos =
-    loadVideos();
+    await loadVideos();
 
 
   if (!videos.length) {
@@ -1414,7 +1748,11 @@ function renderVideos() {
       </div>
     `;
 
-    updateDashboard();
+
+    updateDashboard(
+      videos
+    );
+
 
     return;
 
@@ -1423,35 +1761,42 @@ function renderVideos() {
 
   container.innerHTML =
     videos
-      .map((video, index) => {
+      .map(
+        (video, index) => {
 
-        return `
-          <div class="list-row">
+          return `
+            <div class="list-row">
 
-            <div>
+              <div>
 
-              <strong>
-                ${escapeHtml(video.title)}
-              </strong>
+                <strong>
+                  ${escapeHtml(
+                    video.title
+                  )}
+                </strong>
 
-              <small>
-                ${escapeHtml(video.categoryName || "Uncategorized")}
-              </small>
+                <small>
+                  ${escapeHtml(
+                    video.categoryName ||
+                    "Uncategorized"
+                  )}
+                </small>
+
+              </div>
+
+              <button
+                type="button"
+                class="danger-btn"
+                data-delete-video="${index}"
+              >
+                Delete
+              </button>
 
             </div>
+          `;
 
-            <button
-              type="button"
-              class="danger-btn"
-              data-delete-video="${index}"
-            >
-              Delete
-            </button>
-
-          </div>
-        `;
-
-      })
+        }
+      )
       .join("");
 
 
@@ -1463,14 +1808,18 @@ function renderVideos() {
 
       button.addEventListener(
         "click",
-        () => {
+        async () => {
 
           const index =
             Number(
-              button.dataset.deleteVideo
+              button.dataset
+                .deleteVideo
             );
 
-          deleteVideo(index);
+
+          await deleteVideo(
+            index
+          );
 
         }
       );
@@ -1478,18 +1827,23 @@ function renderVideos() {
     });
 
 
-  updateDashboard();
+  updateDashboard(
+    videos
+  );
 
 }
 
 
-function deleteVideo(index) {
+async function deleteVideo(
+  index
+) {
 
   const videos =
-    loadVideos();
+    await loadVideos();
 
 
-  if (!videos[index]) return;
+  if (!videos[index])
+    return;
 
 
   if (
@@ -1503,23 +1857,38 @@ function deleteVideo(index) {
   }
 
 
-  videos.splice(
-    index,
-    1
-  );
+  const video =
+    videos[index];
 
 
-  saveVideos(
-    videos
-  );
+  try {
+
+    await apiRequest(
+      `/videos/${encodeURIComponent(
+        video.id
+      )}`,
+      {
+        method: "DELETE"
+      }
+    );
 
 
-  renderVideos();
+    await renderVideos();
 
 
-  showToast(
-    "Video deleted."
-  );
+    showToast(
+      "Video deleted."
+    );
+
+  } catch (error) {
+
+    showToast(
+      "Video delete failed: " +
+      error.message,
+      "error"
+    );
+
+  }
 
 }
 
@@ -1530,6 +1899,7 @@ function openUploadModal() {
     getElement(
       "uploadModal"
     );
+
 
   if (modal) {
 
@@ -1549,12 +1919,14 @@ function setupUploadForm() {
       "uploadForm"
     );
 
-  if (!form) return;
+
+  if (!form)
+    return;
 
 
   form.addEventListener(
     "submit",
-    event => {
+    async event => {
 
       event.preventDefault();
 
@@ -1614,87 +1986,140 @@ function setupUploadForm() {
 
 
       const categoryId =
-        categorySelect?.value || "";
+        categorySelect?.value ||
+        "";
+
+
+      const categories =
+        await loadCategories();
 
 
       const category =
-        loadCategories()
-          .find(
-            item =>
-              item.id === categoryId
-          );
-
-
-      const videos =
-        loadVideos();
+        categories.find(
+          item =>
+            item.id ===
+            categoryId
+        );
 
 
       /*
-       * For this frontend demo we keep
-       * metadata only.
+       * 🔴 IMPORTANT
        *
-       * Real video file storage should
-       * use a proper storage/backend.
+       * Video file সরাসরি API upload endpoint-এ
+       * পাঠানো হচ্ছে।
+       *
+       * Backend-এ /videos endpoint-এ
+       * multipart/form-data গ্রহণ করতে হবে।
        */
 
-      videos.push({
 
-        id:
-          Date.now().toString(),
+      const formData =
+        new FormData();
 
-        title,
 
-        description,
+      formData.append(
+        "title",
+        title
+      );
 
-        categoryId,
 
-        categoryName:
-          category?.name ||
-          "Uncategorized",
+      formData.append(
+        "description",
+        description
+      );
 
-        fileName:
-          file.name,
 
-        thumbnailName:
-          thumbnail
-            ? thumbnail.name
-            : "",
+      formData.append(
+        "categoryId",
+        categoryId
+      );
 
-        published:
+
+      formData.append(
+        "categoryName",
+        category?.name ||
+        "Uncategorized"
+      );
+
+
+      formData.append(
+        "published",
+        String(
           Boolean(
             getElement(
               "publishVideo"
             )?.checked
-          ),
-
-        views: 0,
-
-        createdAt:
-          new Date()
-            .toISOString()
-
-      });
-
-
-      saveVideos(
-        videos
+          )
+        )
       );
 
 
-      form.reset();
-
-
-      closeModal(
-        "uploadModal"
+      formData.append(
+        "video",
+        file
       );
 
 
-      renderVideos();
+      if (thumbnail) {
+
+        formData.append(
+          "thumbnail",
+          thumbnail
+        );
+
+      }
 
 
-      showToast(
-        "Video added successfully."
-      );
+      try {
+
+        await apiRequest(
+          "/videos",
+          {
+            method: "POST",
+
+            /*
+             * এখানে Content-Type নিজে
+             * সেট করা যাবে না।
+             * Browser boundary তৈরি করবে।
+             */
+
+            headers: {},
+
+            body: formData
+          }
+        );
+
+
+        form.reset();
+
+
+        closeModal(
+          "uploadModal"
+        );
+
+
+        await renderVideos();
+
+
+        showToast(
+          "Video uploaded successfully."
+        );
+
+      } catch (error) {
+
+        console.error(
+          "Video upload failed:",
+          error
+        );
+
+
+        showToast(
+          "Video upload failed: " +
+          error.message,
+          "error"
+        );
+
+      }
 
     }
   );
@@ -1706,10 +2131,13 @@ function setupUploadForm() {
    DASHBOARD
 ======================================================= */
 
-function updateDashboard() {
+async function updateDashboard(
+  suppliedVideos = null
+) {
 
   const videos =
-    loadVideos();
+    suppliedVideos ||
+    await loadVideos();
 
 
   setTextContent(
@@ -1735,44 +2163,69 @@ function updateDashboard() {
   );
 
 
-  const totalUsers =
-    Number(
-      localStorage.getItem(
-        "totalUsers"
-      ) || 0
+  /*
+   * User statistics backend থেকে নেওয়া উচিত।
+   */
+
+  try {
+
+    const stats =
+      await apiRequest(
+        "/stats",
+        {
+          method: "GET"
+        }
+      );
+
+
+    if (stats) {
+
+      setTextContent(
+        "totalUsers",
+        Number(
+          stats.totalUsers || 0
+        )
+      );
+
+
+      setTextContent(
+        "registeredUsers",
+        Number(
+          stats.registeredUsers ||
+          stats.totalUsers ||
+          0
+        )
+      );
+
+
+      setTextContent(
+        "activeUsers",
+        Number(
+          stats.activeUsers ||
+          0
+        )
+      );
+
+
+      setTextContent(
+        "onlineUsers",
+        Number(
+          stats.onlineUsers ||
+          stats.activeUsers ||
+          0
+        )
+      );
+
+    }
+
+  } catch (error) {
+
+    console.warn(
+      "Could not load dashboard stats:",
+      error
     );
 
-
-  setTextContent(
-    "totalUsers",
-    totalUsers
-  );
-
-
-  setTextContent(
-    "registeredUsers",
-    totalUsers
-  );
-
-
-  setTextContent(
-    "activeUsers",
-    Number(
-      localStorage.getItem(
-        "activeUsers"
-      ) || 0
-    )
-  );
-
-
-  setTextContent(
-    "onlineUsers",
-    Number(
-      localStorage.getItem(
-        "activeUsers"
-      ) || 0
-    )
-  );
+  }
 
 
   renderTrendingVideos(
@@ -1782,10 +2235,14 @@ function updateDashboard() {
 }
 
 
-function setTextContent(id, value) {
+function setTextContent(
+  id,
+  value
+) {
 
   const element =
     getElement(id);
+
 
   if (element) {
 
@@ -1797,14 +2254,18 @@ function setTextContent(id, value) {
 }
 
 
-function renderTrendingVideos(videos) {
+function renderTrendingVideos(
+  videos
+) {
 
   const container =
     getElement(
       "trendingList"
     );
 
-  if (!container) return;
+
+  if (!container)
+    return;
 
 
   const sorted =
@@ -1833,27 +2294,33 @@ function renderTrendingVideos(videos) {
 
   container.innerHTML =
     sorted
-      .map(video => {
+      .map(
+        video => {
 
-        return `
-          <div class="list-row">
+          return `
+            <div class="list-row">
 
-            <div>
+              <div>
 
-              <strong>
-                ${escapeHtml(video.title)}
-              </strong>
+                <strong>
+                  ${escapeHtml(
+                    video.title
+                  )}
+                </strong>
 
-              <small>
-                ${Number(video.views || 0)} views
-              </small>
+                <small>
+                  ${Number(
+                    video.views || 0
+                  )} views
+                </small>
+
+              </div>
 
             </div>
+          `;
 
-          </div>
-        `;
-
-      })
+        }
+      )
       .join("");
 
 }
@@ -1870,12 +2337,14 @@ function setupNotifications() {
       "sendNotification"
     );
 
-  if (!button) return;
+
+  if (!button)
+    return;
 
 
   button.addEventListener(
     "click",
-    () => {
+    async () => {
 
       const title =
         getText(
@@ -1901,63 +2370,47 @@ function setupNotifications() {
       }
 
 
-      let notifications = [];
-
-
       try {
 
-        notifications =
-          JSON.parse(
-            localStorage.getItem(
-              STORAGE_KEYS.notifications
-            ) || "[]"
-          );
+        await apiRequest(
+          "/notifications",
+          {
+            method: "POST",
 
-      } catch {
+            body:
+              JSON.stringify({
+                title,
+                message
+              })
+          }
+        );
 
-        notifications = [];
+
+        setValue(
+          "notificationTitle",
+          ""
+        );
+
+
+        setValue(
+          "notificationMessage",
+          ""
+        );
+
+
+        showToast(
+          "Notification sent successfully."
+        );
+
+      } catch (error) {
+
+        showToast(
+          "Notification failed: " +
+          error.message,
+          "error"
+        );
 
       }
-
-
-      notifications.push({
-
-        id:
-          Date.now().toString(),
-
-        title,
-
-        message,
-
-        createdAt:
-          new Date()
-            .toISOString()
-
-      });
-
-
-      localStorage.setItem(
-        STORAGE_KEYS.notifications,
-        JSON.stringify(
-          notifications
-        )
-      );
-
-
-      setValue(
-        "notificationTitle",
-        ""
-      );
-
-      setValue(
-        "notificationMessage",
-        ""
-      );
-
-
-      showToast(
-        "Notification saved."
-      );
 
     }
   );
@@ -2000,7 +2453,8 @@ function setupModals() {
         event => {
 
           if (
-            event.target === modal
+            event.target ===
+            modal
           ) {
 
             modal.classList.remove(
@@ -2028,18 +2482,33 @@ function setupLogout() {
       "logoutBtn"
     );
 
-  if (!button) return;
+
+  if (!button)
+    return;
 
 
   button.addEventListener(
     "click",
-    () => {
+    async () => {
 
-      /*
-       * Actual authentication logout
-       * must be handled by the backend/auth
-       * provider.
-       */
+      try {
+
+        await apiRequest(
+          "/auth/logout",
+          {
+            method: "POST"
+          }
+        );
+
+      } catch (error) {
+
+        console.warn(
+          "Backend logout failed:",
+          error
+        );
+
+      }
+
 
       sessionStorage.removeItem(
         "adminSession"
@@ -2053,11 +2522,6 @@ function setupLogout() {
 
       setTimeout(
         () => {
-
-          /*
-           * Do not automatically redirect
-           * to a hard-coded login URL.
-           */
 
           window.location.reload();
 
@@ -2077,7 +2541,9 @@ function setupLogout() {
 
 function escapeHtml(value) {
 
-  return String(value ?? "")
+  return String(
+    value ?? ""
+  )
     .replace(
       /&/g,
       "&amp;"
@@ -2113,6 +2579,7 @@ function setupButtons() {
       "openUpload"
     );
 
+
   if (upload) {
 
     upload.addEventListener(
@@ -2127,6 +2594,7 @@ function setupButtons() {
     getElement(
       "addCategoryBtn"
     );
+
 
   if (category) {
 
@@ -2143,6 +2611,7 @@ function setupButtons() {
       "saveCoinSettings"
     );
 
+
   if (saveCoins) {
 
     saveCoins.addEventListener(
@@ -2157,6 +2626,7 @@ function setupButtons() {
     getElement(
       "saveAdSettings"
     );
+
 
   if (saveAds) {
 
@@ -2173,6 +2643,7 @@ function setupButtons() {
       "saveHomepageSettings"
     );
 
+
   if (saveHome) {
 
     saveHome.addEventListener(
@@ -2187,6 +2658,7 @@ function setupButtons() {
     getElement(
       "saveSettings"
     );
+
 
   if (saveSettings) {
 
@@ -2204,7 +2676,7 @@ function setupButtons() {
    INITIALIZE
 ======================================================= */
 
-function initializeAdminPanel() {
+async function initializeAdminPanel() {
 
   setupNavigation();
 
@@ -2223,6 +2695,13 @@ function initializeAdminPanel() {
   setupLogout();
 
 
+  /*
+   * প্রথমে API থেকে config load হবে।
+   */
+
+  await loadConfigFromAPI();
+
+
   loadCoinSettings();
 
   loadAdSettings();
@@ -2232,13 +2711,13 @@ function initializeAdminPanel() {
   loadGeneralSettings();
 
 
-  renderCategories();
+  await renderCategories();
 
-  populateCategorySelect();
+  await populateCategorySelect();
 
-  renderVideos();
+  await renderVideos();
 
-  updateDashboard();
+  await updateDashboard();
 
 }
 
@@ -2248,7 +2727,8 @@ function initializeAdminPanel() {
 ======================================================= */
 
 if (
-  document.readyState === "loading"
+  document.readyState ===
+  "loading"
 ) {
 
   document.addEventListener(
