@@ -8,7 +8,54 @@
 
   <title>Admin Panel</title>
 
-  <link rel="stylesheet" href="admin.css">
+  
+<link rel="stylesheet" href="admin.css">
+
+<!-- =========================================================
+     SUPABASE CONNECTION
+     🔴 এখানে আপনার Supabase Project URL বসান
+     🔴 এখানে আপনার Supabase Publishable Key (sb_publishable_...) বসান
+     ⚠️ Secret Key (sb_secret_...) এখানে বসাবেন না
+========================================================= -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL =
+    "https://ounhudbdznqgfwmvpczk.supabase.co";
+
+  const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_2xAQFQ3_oNhVEdard3MJtA_YoRX5Ish;
+
+  const supabaseClient =
+    window.supabase &&
+    SUPABASE_URL.startsWith("http") &&
+    SUPABASE_PUBLISHABLE_KEY.startsWith("sb_")
+      ? window.supabase.createClient(
+          SUPABASE_URL,
+          SUPABASE_PUBLISHABLE_KEY
+        )
+      : null;
+
+  window.ADMIN_SUPABASE = {
+    client: supabaseClient,
+    url: SUPABASE_URL,
+    publishableKey: SUPABASE_PUBLISHABLE_KEY
+  };
+</script>
+
+
+<style>
+  .report-stats-grid { margin-bottom: 24px; }
+  .report-table { width: 100%; border-collapse: collapse; }
+  .report-table th,
+  .report-table td {
+    padding: 13px 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .report-table th { color: var(--muted); font-size: 13px; }
+  .table-wrap { width: 100%; overflow-x: auto; }
+</style>
+
 </head>
 
 <body>
@@ -62,6 +109,10 @@
       <button class="menu-item" data-page="users" type="button">
         👥 <span>Users</span>
       </button>
+      <button class="menu-item" data-page="reports" type="button">
+        📊 <span>Reports</span>
+      </button>
+
 
       <button class="menu-item" data-page="coins" type="button">
         🪙 <span>Coins & Referral</span>
@@ -1195,7 +1246,61 @@
     <!-- =========================
          SETTINGS
     ========================== -->
-    <section id="settings" class="page">
+    
+    <!-- =========================
+         REPORTS
+    ========================== -->
+    <section id="reports" class="page">
+      <div class="page-header">
+        <div>
+          <span class="eyebrow">ANALYTICS</span>
+          <h1>Reports & Analytics</h1>
+          <p>Users, Videos, Coins, Ads এবং Referrals-এর রিপোর্ট।</p>
+        </div>
+        <button id="refreshReports" class="primary-btn" type="button">
+          ↻ Refresh
+        </button>
+      </div>
+
+      <div class="stats-grid report-stats-grid">
+        <div class="stat-card"><span>👥</span><small>Total Users</small><strong id="reportTotalUsers">0</strong></div>
+        <div class="stat-card"><span>🎬</span><small>Published Videos</small><strong id="reportPublishedVideos">0</strong></div>
+        <div class="stat-card"><span>👁️</span><small>Video Views</small><strong id="reportVideoViews">0</strong></div>
+        <div class="stat-card"><span>🪙</span><small>Coins Issued</small><strong id="reportCoinsIssued">0</strong></div>
+        <div class="stat-card"><span>🎁</span><small>Ad Claims</small><strong id="reportAdClaims">0</strong></div>
+        <div class="stat-card"><span>📢</span><small>Ad Views</small><strong id="reportAdViews">0</strong></div>
+        <div class="stat-card"><span>🤝</span><small>Referrals</small><strong id="reportReferrals">0</strong></div>
+        <div class="stat-card"><span>⭐</span><small>Premium Members</small><strong id="reportPremiumUsers">0</strong></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Recent Activity</h2>
+            <p>সাম্প্রতিক User activity</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="report-table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Activity</th>
+                <th>Coins</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="reportActivityTable">
+              <tr>
+                <td colspan="4">Database connection হলে activity এখানে দেখা যাবে।</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+<section id="settings" class="page">
 
       <div class="page-header">
 
