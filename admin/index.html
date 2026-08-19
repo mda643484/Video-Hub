@@ -1,1 +1,841 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Hub Admin</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <div class="admin-logo">
+      <div class="logo-icon">▶</div>
+      <div>
+        <strong>VIDEO HUB</strong>
+        <small>ADMIN PANEL</small>
+      </div>
+    </div>
+
+    <nav class="menu">
+
+      <button class="menu-item active" data-page="dashboard">
+        📊 <span>Dashboard</span>
+      </button>
+
+      <button class="menu-item" data-page="videos">
+        🎬 <span>Videos</span>
+      </button>
+
+      <button class="menu-item" data-page="categories">
+        📂 <span>Categories</span>
+      </button>
+
+      <button class="menu-item" data-page="users">
+        👥 <span>Users</span>
+      </button>
+
+      <button class="menu-item" data-page="coins">
+        🪙 <span>Coins & Referral</span>
+      </button>
+
+      <button class="menu-item" data-page="ads">
+        📢 <span>Ads</span>
+      </button>
+
+      <button class="menu-item" data-page="notifications">
+        🔔 <span>Notifications</span>
+      </button>
+
+      <button class="menu-item" data-page="subscriptions">
+        💎 <span>Subscriptions</span>
+      </button>
+
+      <button class="menu-item" data-page="settings">
+        ⚙️ <span>Settings</span>
+      </button>
+
+    </nav>
+
+    <div class="admin-bottom">
+      <div class="admin-user">
+        <div class="avatar">A</div>
+        <div>
+          <strong>Administrator</strong>
+          <small>Super Admin</small>
+        </div>
+      </div>
+
+      <button id="logoutBtn" class="logout-btn">
+        🚪 Logout
+      </button>
+    </div>
+
+  </aside>
+
+
+  <!-- MAIN AREA -->
+  <main class="main">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+
+      <div>
+        <button id="mobileMenu" class="mobile-menu">☰</button>
+        <span class="page-label">Administration</span>
+      </div>
+
+      <div class="top-actions">
+
+        <button id="notificationButton" class="top-icon">
+          🔔
+          <span class="notification-dot"></span>
+        </button>
+
+        <div class="admin-profile">
+          <div class="avatar">A</div>
+          <div>
+            <strong>Admin</strong>
+            <small>Online</small>
+          </div>
+        </div>
+
+      </div>
+
+    </header>
+
+
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="page active-page">
+
+      <div class="page-heading">
+        <div>
+          <h1>Dashboard</h1>
+          <p>Monitor your Video Hub platform.</p>
+        </div>
+
+        <span class="live-status">
+          <i></i> System Online
+        </span>
+      </div>
+
+
+      <!-- STAT CARDS -->
+      <div class="stats-grid">
+
+        <div class="stat-card">
+          <div class="stat-icon">👥</div>
+          <div>
+            <small>Total Users</small>
+            <h2 id="totalUsers">0</h2>
+            <span class="positive">Registered users</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">🟢</div>
+          <div>
+            <small>Active Users</small>
+            <h2 id="activeUsers">0</h2>
+            <span class="positive">Currently online</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">🎬</div>
+          <div>
+            <small>Total Videos</small>
+            <h2 id="totalVideos">0</h2>
+            <span class="positive">Published videos</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">👁️</div>
+          <div>
+            <small>Total Views</small>
+            <h2 id="totalViews">0</h2>
+            <span class="positive">All-time views</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">⏱️</div>
+          <div>
+            <small>Watch Time</small>
+            <h2 id="watchTime">0h</h2>
+            <span class="positive">Total watch time</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">🪙</div>
+          <div>
+            <small>Coins Issued</small>
+            <h2 id="totalCoins">0</h2>
+            <span class="positive">User coins</span>
+          </div>
+        </div>
+
+      </div>
+
+
+      <!-- ANALYTICS -->
+      <div class="two-column">
+
+        <div class="panel">
+
+          <div class="panel-header">
+            <div>
+              <h2>🔥 Trending Videos</h2>
+              <p>Videos getting the most views.</p>
+            </div>
+
+            <button class="small-btn" data-page-target="videos">
+              View All
+            </button>
+          </div>
+
+          <div id="trendingList" class="video-list">
+
+            <div class="empty-state">
+              <div>🎬</div>
+              <strong>No videos yet</strong>
+              <p>Upload your first video from Video Management.</p>
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="panel">
+
+          <div class="panel-header">
+            <div>
+              <h2>🟢 Live Activity</h2>
+              <p>Currently watching users.</p>
+            </div>
+          </div>
+
+          <div id="liveUsers" class="live-users">
+
+            <div class="empty-state">
+              <div>👥</div>
+              <strong>No active users</strong>
+              <p>Live users will appear here.</p>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- QUICK ACTIONS -->
+      <div class="panel">
+
+        <div class="panel-header">
+          <div>
+            <h2>⚡ Quick Actions</h2>
+            <p>Manage your platform quickly.</p>
+          </div>
+        </div>
+
+        <div class="quick-actions">
+
+          <button data-page-target="videos">
+            <span>📤</span>
+            <strong>Upload Video</strong>
+            <small>Add a new video</small>
+          </button>
+
+          <button data-page-target="categories">
+            <span>📂</span>
+            <strong>Add Category</strong>
+            <small>Create video category</small>
+          </button>
+
+          <button data-page-target="notifications">
+            <span>🔔</span>
+            <strong>Send Notification</strong>
+            <small>Notify users</small>
+          </button>
+
+          <button data-page-target="ads">
+            <span>📢</span>
+            <strong>Manage Ads</strong>
+            <small>Banner & popup ads</small>
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- VIDEOS -->
+    <section id="videos" class="page">
+
+      <div class="page-heading">
+
+        <div>
+          <h1>🎬 Video Management</h1>
+          <p>Upload, edit, publish and manage your videos.</p>
+        </div>
+
+        <button id="openUpload" class="primary-btn">
+          + Upload Video
+        </button>
+
+      </div>
+
+
+      <div class="panel">
+
+        <div class="toolbar">
+
+          <input
+            id="videoSearch"
+            type="search"
+            placeholder="🔎 Search videos..."
+          >
+
+          <select id="videoCategoryFilter">
+            <option value="all">All Categories</option>
+          </select>
+
+          <select id="videoStatusFilter">
+            <option value="all">All Status</option>
+            <option value="published">Published</option>
+            <option value="draft">Draft</option>
+          </select>
+
+        </div>
+
+        <div id="videoTable" class="table-container">
+
+          <div class="empty-state">
+            <div>🎬</div>
+            <strong>No videos found</strong>
+            <p>Upload your first video.</p>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- CATEGORIES -->
+    <section id="categories" class="page">
+
+      <div class="page-heading">
+
+        <div>
+          <h1>📂 Categories</h1>
+          <p>Create and manage your video categories.</p>
+        </div>
+
+        <button id="addCategoryBtn" class="primary-btn">
+          + Add Category
+        </button>
+
+      </div>
+
+
+      <div class="panel">
+
+        <div id="categoryList" class="category-list">
+
+          <div class="empty-state">
+            <div>📂</div>
+            <strong>No categories yet</strong>
+            <p>Create your first video category.</p>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- USERS -->
+    <section id="users" class="page">
+
+      <div class="page-heading">
+        <div>
+          <h1>👥 Users</h1>
+          <p>View users, activity and watching information.</p>
+        </div>
+      </div>
+
+      <div class="stats-grid mini-stats">
+
+        <div class="stat-card">
+          <div class="stat-icon">👥</div>
+          <div>
+            <small>Registered</small>
+            <h2 id="registeredUsers">0</h2>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">🟢</div>
+          <div>
+            <small>Online</small>
+            <h2 id="onlineUsers">0</h2>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">🆕</div>
+          <div>
+            <small>New Users</small>
+            <h2 id="newUsers">0</h2>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="panel">
+
+        <div class="toolbar">
+          <input id="userSearch" type="search" placeholder="🔎 Search users...">
+        </div>
+
+        <div id="usersTable" class="table-container">
+
+          <div class="empty-state">
+            <div>👤</div>
+            <strong>No users yet</strong>
+            <p>Telegram users will appear here after backend connection.</p>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- COINS -->
+    <section id="coins" class="page">
+
+      <div class="page-heading">
+
+        <div>
+          <h1>🪙 Coins & Referral</h1>
+          <p>Manage your reward and referral system.</p>
+        </div>
+
+      </div>
+
+      <div class="stats-grid">
+
+        <div class="stat-card">
+          <div class="stat-icon">🪙</div>
+          <div>
+            <small>Total Coins</small>
+            <h2>0</h2>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">🤝</div>
+          <div>
+            <small>Total Referrals</small>
+            <h2>0</h2>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="panel">
+
+        <h2>Referral Settings</h2>
+
+        <div class="settings-form">
+
+          <label>
+            Coins per successful referral
+            <input id="referralCoins" type="number" value="10">
+          </label>
+
+          <label class="switch-row">
+            <span>
+              <strong>Referral System</strong>
+              <small>Allow users to earn coins from referrals.</small>
+            </span>
+            <input type="checkbox" checked>
+          </label>
+
+          <button class="primary-btn">
+            Save Coin Settings
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ADS -->
+    <section id="ads" class="page">
+
+      <div class="page-heading">
+
+        <div>
+          <h1>📢 Advertisement</h1>
+          <p>Manage banner and popup advertisements.</p>
+        </div>
+
+      </div>
+
+      <div class="two-column">
+
+        <div class="panel">
+
+          <h2>Banner Advertisement</h2>
+
+          <label class="form-label">Banner Image</label>
+          <input type="file" accept="image/*">
+
+          <label class="form-label">Advertisement Link</label>
+          <input class="full-input" placeholder="https://example.com">
+
+          <label class="switch-row">
+            <span>
+              <strong>Banner Enabled</strong>
+              <small>Show banner advertisements.</small>
+            </span>
+            <input type="checkbox">
+          </label>
+
+          <button class="primary-btn">Save Banner</button>
+
+        </div>
+
+
+        <div class="panel">
+
+          <h2>Popup Advertisement</h2>
+
+          <label class="form-label">Popup Image</label>
+          <input type="file" accept="image/*">
+
+          <label class="switch-row">
+            <span>
+              <strong>Popup Enabled</strong>
+              <small>Show popup advertisements.</small>
+            </span>
+            <input type="checkbox">
+          </label>
+
+          <button class="primary-btn">Save Popup</button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- NOTIFICATIONS -->
+    <section id="notifications" class="page">
+
+      <div class="page-heading">
+
+        <div>
+          <h1>🔔 Notifications</h1>
+          <p>Send notifications to eligible Telegram users.</p>
+        </div>
+
+      </div>
+
+      <div class="panel notification-panel">
+
+        <label class="form-label">Notification Title</label>
+
+        <input
+          id="notificationTitle"
+          class="full-input"
+          placeholder="New video available!"
+        >
+
+        <label class="form-label">Message</label>
+
+        <textarea
+          id="notificationMessage"
+          placeholder="Write your notification..."
+        ></textarea>
+
+        <label class="form-label">Audience</label>
+
+        <select id="notificationAudience">
+          <option value="all">All eligible users</option>
+          <option value="active">Active users</option>
+          <option value="new">New users</option>
+        </select>
+
+        <button id="sendNotification" class="primary-btn">
+          🔔 Send Notification
+        </button>
+
+        <div class="info-box">
+          <strong>Telegram rule:</strong>
+          A bot can send messages only to users who have previously started
+          the bot or otherwise opened a chat with it.
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- SUBSCRIPTIONS -->
+    <section id="subscriptions" class="page">
+
+      <div class="page-heading">
+
+        <div>
+          <h1>💎 Subscriptions</h1>
+          <p>Manage future premium membership options.</p>
+        </div>
+
+      </div>
+
+      <div class="two-column">
+
+        <div class="panel">
+
+          <h2>Monthly Plan</h2>
+
+          <label class="form-label">Plan Name</label>
+          <input class="full-input" value="Premium Monthly">
+
+          <label class="form-label">Price</label>
+          <input class="full-input" placeholder="Enter price">
+
+          <label class="switch-row">
+            <span>
+              <strong>Premium Enabled</strong>
+              <small>Enable subscription features.</small>
+            </span>
+            <input type="checkbox">
+          </label>
+
+          <button class="primary-btn">
+            Save Plan
+          </button>
+
+        </div>
+
+        <div class="panel">
+
+          <h2>Premium Features</h2>
+
+          <label class="switch-row">
+            <span>Ad-free videos</span>
+            <input type="checkbox">
+          </label>
+
+          <label class="switch-row">
+            <span>Premium videos</span>
+            <input type="checkbox">
+          </label>
+
+          <label class="switch-row">
+            <span>Extra coins</span>
+            <input type="checkbox">
+          </label>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- SETTINGS -->
+    <section id="settings" class="page">
+
+      <div class="page-heading">
+
+        <div>
+          <h1>⚙️ Settings</h1>
+          <p>Control platform features.</p>
+        </div>
+
+      </div>
+
+      <div class="panel settings-panel">
+
+        <label class="switch-row">
+          <span>
+            <strong>New User Notifications</strong>
+            <small>Notify eligible users when a new user joins.</small>
+          </span>
+          <input id="newUserNotification" type="checkbox" checked>
+        </label>
+
+        <label class="switch-row">
+          <span>
+            <strong>Referral System</strong>
+            <small>Allow users to earn referral coins.</small>
+          </span>
+          <input type="checkbox" checked>
+        </label>
+
+        <label class="switch-row">
+          <span>
+            <strong>Coin Ad Claim</strong>
+            <small>Allow coins to be used for ad claims.</small>
+          </span>
+          <input type="checkbox" checked>
+        </label>
+
+        <label class="switch-row">
+          <span>
+            <strong>Subscriptions</strong>
+            <small>Enable premium subscription system.</small>
+          </span>
+          <input type="checkbox">
+        </label>
+
+        <label class="switch-row">
+          <span>
+            <strong>Popup Ads</strong>
+            <small>Enable popup advertising.</small>
+          </span>
+          <input type="checkbox">
+        </label>
+
+        <button id="saveSettings" class="primary-btn">
+          Save Settings
+        </button>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- UPLOAD VIDEO MODAL -->
+  <div id="uploadModal" class="modal">
+
+    <div class="modal-box">
+
+      <div class="modal-header">
+        <div>
+          <h2>📤 Upload Video</h2>
+          <p>Add a new video to your platform.</p>
+        </div>
+
+        <button class="close-modal" data-close="uploadModal">
+          ✕
+        </button>
+      </div>
+
+
+      <form id="uploadForm">
+
+        <label>
+          Video Title
+          <input id="videoTitle" type="text" required placeholder="Enter video title">
+        </label>
+
+        <label>
+          Thumbnail
+          <input id="videoThumbnail" type="file" accept="image/*">
+        </label>
+
+        <label>
+          Video File
+          <input id="videoFile" type="file" accept="video/*" required>
+        </label>
+
+        <label>
+          Category
+          <select id="videoCategory">
+            <option value="">Select category</option>
+          </select>
+        </label>
+
+        <label class="switch-row">
+          <span>
+            <strong>Publish immediately</strong>
+            <small>Make this video visible to users.</small>
+          </span>
+          <input id="publishVideo" type="checkbox" checked>
+        </label>
+
+        <button class="primary-btn" type="submit">
+          📤 Upload & Save
+        </button>
+
+      </form>
+
+    </div>
+
+  </div>
+
+
+  <!-- CATEGORY MODAL -->
+  <div id="categoryModal" class="modal">
+
+    <div class="modal-box small-box">
+
+      <div class="modal-header">
+
+        <div>
+          <h2>📂 Add Category</h2>
+          <p>Create a new video category.</p>
+        </div>
+
+        <button class="close-modal" data-close="categoryModal">
+          ✕
+        </button>
+
+      </div>
+
+      <form id="categoryForm">
+
+        <label>
+          Category Name
+          <input
+            id="categoryName"
+            type="text"
+            required
+            placeholder="Example: Comedy"
+          >
+        </label>
+
+        <button class="primary-btn" type="submit">
+          + Create Category
+        </button>
+
+      </form>
+
+    </div>
+
+  </div>
+
+
+  <!-- TOAST -->
+  <div id="toast" class="toast"></div>
+
+  <script src="admin.js"></script>
+
+</body>
+</html>
