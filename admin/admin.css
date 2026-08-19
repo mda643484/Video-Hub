@@ -1,1478 +1,671 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <meta name="robots" content="noindex,nofollow">
-
-  <title>Admin Panel</title>
-
-  <link rel="stylesheet" href="admin.css">
-
-  <!-- SUPABASE CONNECTION: publishable key is safe for browser use.
-       Do NOT put a service_role/secret key here. -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    window.SUPABASE_URL = "https://ounhudbdznqgfwmvpczk.supabase.co";
-    window.SUPABASE_PUBLISHABLE_KEY = "sb_publishable_2xAQFQ3_oNhVEdard3MJtA_YoRX5Ish";
-    window.SUPABASE_TABLE = "site_settings";
-  </script>
-</head>
-
-<body>
-
-  <!-- =========================
-       MOBILE HEADER
-  ========================== -->
-  <header class="mobile-header">
-
-    <button id="mobileMenu" class="icon-btn" type="button">
-      ☰
-    </button>
-
-    <h2>Admin Panel</h2>
-
-    <button id="notificationButton" class="icon-btn" type="button">
-      🔔
-    </button>
-
-  </header>
-
-
-  <!-- =========================
-       SIDEBAR
-  ========================== -->
-  <aside class="sidebar">
-
-    <div class="brand">
-      <div class="brand-icon">⚡</div>
-
-      <div>
-        <strong>ADMIN</strong>
-        <small>CONTROL PANEL</small>
-      </div>
-    </div>
-
-    <nav>
-
-      <button class="menu-item active" data-page="dashboard" type="button">
-        📊 <span>Dashboard</span>
-      </button>
-
-      <button class="menu-item" data-page="videos" type="button">
-        🎬 <span>Videos</span>
-      </button>
-
-      <button class="menu-item" data-page="categories" type="button">
-        📂 <span>Categories</span>
-      </button>
-
-      <button class="menu-item" data-page="users" type="button">
-        👥 <span>Users</span>
-      </button>
-
-      <button class="menu-item" data-page="coins" type="button">
-        🪙 <span>Coins & Referral</span>
-      </button>
-
-      <button class="menu-item" data-page="ads" type="button">
-        📢 <span>Ads Management</span>
-      </button>
-
-      <button class="menu-item" data-page="homepage" type="button">
-        🏠 <span>Homepage Content</span>
-      </button>
-
-      <button class="menu-item" data-page="notifications" type="button">
-        🔔 <span>Notifications</span>
-      </button>
-
-      <button class="menu-item" data-page="subscriptions" type="button">
-        💎 <span>Subscriptions</span>
-      </button>
-
-      <button class="menu-item" data-page="settings" type="button">
-        ⚙️ <span>Settings</span>
-      </button>
-
-    </nav>
-
-    <button id="logoutBtn" class="logout-btn" type="button">
-      🚪 Logout
-    </button>
-
-  </aside>
-
-
-  <!-- =========================
-       MAIN CONTENT
-  ========================== -->
-  <main class="main-content">
-
-
-    <!-- =========================
-         DASHBOARD
-    ========================== -->
-    <section id="dashboard" class="page active-page">
-
-      <div class="page-header">
-
-        <div>
-          <span class="eyebrow">CONTROL CENTER</span>
-          <h1>Dashboard</h1>
-          <p>Manage your website from one place.</p>
-        </div>
-
-      </div>
-
-
-      <div class="stats-grid">
-
-        <div class="stat-card">
-          <span>🎬</span>
-          <small>Total Videos</small>
-          <strong id="totalVideos">0</strong>
-        </div>
-
-        <div class="stat-card">
-          <span>👁️</span>
-          <small>Total Views</small>
-          <strong id="totalViews">0</strong>
-        </div>
-
-        <div class="stat-card">
-          <span>👥</span>
-          <small>Total Users</small>
-          <strong id="totalUsers">0</strong>
-        </div>
-
-        <div class="stat-card">
-          <span>🟢</span>
-          <small>Active Users</small>
-          <strong id="activeUsers">0</strong>
-        </div>
-
-      </div>
-
-
-      <div class="content-grid">
-
-        <div class="panel">
-
-          <div class="panel-header">
-            <div>
-              <h2>Trending Videos</h2>
-              <p>Most viewed videos.</p>
-            </div>
-          </div>
-
-          <div id="trendingList"></div>
-
-        </div>
-
-
-        <div class="panel">
-
-          <div class="panel-header">
-            <div>
-              <h2>Quick Actions</h2>
-              <p>Manage your website quickly.</p>
-            </div>
-          </div>
-
-          <div class="quick-actions">
-
-            <button data-page-target="videos" type="button">
-              🎬 Manage Videos
-            </button>
-
-            <button data-page-target="categories" type="button">
-              📂 Categories
-            </button>
-
-            <button data-page-target="ads" type="button">
-              📢 Manage Ads
-            </button>
-
-            <button data-page-target="coins" type="button">
-              🪙 Coin Settings
-            </button>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- =========================
-         VIDEOS
-    ========================== -->
-    <section id="videos" class="page">
-
-      <div class="page-header">
-
-        <div>
-          <span class="eyebrow">CONTENT</span>
-          <h1>Videos</h1>
-          <p>Upload and manage your videos.</p>
-        </div>
-
-        <button id="openUpload" class="primary-btn" type="button">
-          ＋ Upload Video
-        </button>
-
-      </div>
-
-
-      <div class="panel">
-        <div id="videoTable"></div>
-      </div>
-
-    </section>
-
-
-    <!-- =========================
-         CATEGORIES
-    ========================== -->
-    <section id="categories" class="page">
-
-      <div class="page-header">
-
-        <div>
-          <span class="eyebrow">CONTENT</span>
-          <h1>Categories</h1>
-          <p>Create, edit and delete video categories.</p>
-        </div>
-
-        <button id="addCategoryBtn" class="primary-btn" type="button">
-          ＋ Add Category
-        </button>
-
-      </div>
-
-
-      <div class="panel">
-        <div id="categoryList"></div>
-      </div>
-
-    </section>
-
-
-    <!-- =========================
-         USERS
-    ========================== -->
-    <section id="users" class="page">
-
-      <div class="page-header">
-
-        <div>
-          <span class="eyebrow">USERS</span>
-          <h1>User Management</h1>
-          <p>Manage registered and active users.</p>
-        </div>
-
-      </div>
-
-
-      <div class="stats-grid">
-
-        <div class="stat-card">
-          <span>👥</span>
-          <small>Registered Users</small>
-          <strong id="registeredUsers">0</strong>
-        </div>
-
-        <div class="stat-card">
-          <span>🟢</span>
-          <small>Online Users</small>
-          <strong id="onlineUsers">0</strong>
-        </div>
-
-      </div>
-
-
-      <div class="panel">
-
-        <div id="userTable">
-
-          <div class="empty-state">
-            <div>👥</div>
-            <strong>User Management</strong>
-            <p>User data will appear here after backend connection.</p>
-          </div>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- =========================
-         COINS
-    ========================== -->
-    <section id="coins" class="page">
-
-      <div class="page-header">
-
-        <div>
-          <span class="eyebrow">REWARDS</span>
-          <h1>Coins & Referral</h1>
-          <p>Manage ad rewards, daily rewards, referrals and video claims.</p>
-        </div>
-
-      </div>
-
-
-      <!-- WATCH AD REWARD -->
-      <div class="panel">
-
-        <div class="panel-header">
-
-          <div>
-            <h2>👁️ Watch Ad → Earn Coins</h2>
-            <p>Users receive coins after an eligible ad view.</p>
-          </div>
-
-          <label class="switch">
-            <input
-              type="checkbox"
-              id="watchAdRewardEnabled"
-              checked
-            >
-            <span></span>
-          </label>
-
-        </div>
-
-
-        <div class="form-grid">
-
-          <div class="form-group">
-
-            <label for="adRewardCoins">
-              Coins Per Ad
-            </label>
-
-            <input
-              id="adRewardCoins"
-              type="number"
-              min="1"
-              value="25"
-            >
-
-          </div>
-
-
-          <div class="form-group">
-
-            <label for="dailyAdLimit">
-              Maximum Rewarded Ads / Day
-            </label>
-
-            <input
-              id="dailyAdLimit"
-              type="number"
-              min="1"
-              value="20"
-            >
-
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <!-- VIDEO CLAIM -->
-      <div class="panel">
-
-        <div class="panel-header">
-
-          <div>
-            <h2>🎬 Video Claim</h2>
-            <p>Coins required to claim a video reward.</p>
-          </div>
-
-        </div>
-
-
-        <div class="form-grid">
-
-          <div class="form-group">
-
-            <label for="videoClaimCost">
-              Video Claim Cost
-            </label>
-
-            <input
-              id="videoClaimCost"
-              type="number"
-              min="0"
-              value="50"
-            >
-
-          </div>
-
-        </div>
-
-        <div class="info-box">
-          💡 Current rule: <strong>50 coins</strong> are required for one Video Claim.
-        </div>
-
-      </div>
-
-
-      <!-- DAILY CLAIM -->
-      <div class="panel">
-
-        <div class="panel-header">
-
-          <div>
-            <h2>🎁 7-Day Daily Claim</h2>
-            <p>Fixed seven-day reward cycle.</p>
-          </div>
-
-          <label class="switch">
-            <input
-              type="checkbox"
-              id="dailyRewardEnabled"
-              checked
-            >
-            <span></span>
-          </label>
-
-        </div>
-
-
-        <div class="reward-grid">
-
-          <div class="reward-card">
-            <span>DAY 1</span>
-            <strong>25 🪙</strong>
-          </div>
-
-          <div class="reward-card">
-            <span>DAY 2</span>
-            <strong>50 🪙</strong>
-          </div>
-
-          <div class="reward-card">
-            <span>DAY 3</span>
-            <strong>75 🪙</strong>
-          </div>
-
-          <div class="reward-card">
-            <span>DAY 4</span>
-            <strong>100 🪙</strong>
-          </div>
-
-          <div class="reward-card">
-            <span>DAY 5</span>
-            <strong>125 🪙</strong>
-          </div>
-
-          <div class="reward-card">
-            <span>DAY 6</span>
-            <strong>150 🪙</strong>
-          </div>
-
-          <div class="reward-card reward-special">
-            <span>DAY 7</span>
-            <strong>600 🪙</strong>
-          </div>
-
-        </div>
-
-
-        <div class="reward-total">
-
-          <span>7-Day Total</span>
-
-          <strong>1,125 🪙</strong>
-
-        </div>
-
-      </div>
-
-
-      <!-- DAILY CLAIM AD -->
-      <div class="panel">
-
-        <div class="panel-header">
-
-          <div>
-            <h2>🔗 Daily Claim Ad</h2>
-            <p>Show one Direct-Link ad before a daily claim.</p>
-          </div>
-
-          <label class="switch">
-            <input
-              type="checkbox"
-              id="dailyClaimAdEnabled"
-              checked
-            >
-            <span></span>
-          </label>
-
-        </div>
-
-
-        <div class="form-group">
-
-          <label for="dailyClaimAdUrl">
-            Direct-Link Ad URL
-          </label>
-
-          <input
-            id="dailyClaimAdUrl"
-            type="url"
-            placeholder="Paste your approved Direct-Link ad URL"
-          >
-
-        </div>
-
-      </div>
-
-
-      <!-- REFERRAL -->
-      <div class="panel">
-
-        <div class="panel-header">
-
-          <div>
-            <h2>🤝 Referral Reward</h2>
-            <p>Reward eligible successful referrals.</p>
-          </div>
-
-          <label class="switch">
-            <input
-              type="checkbox"
-              id="referralEnabled"
-              checked
-            >
-            <span></span>
-          </label>
-
-        </div>
-
-
-        <div class="form-grid">
-
-          <div class="form-group">
-
-            <label for="referrerReward">
-              Referrer Reward
-            </label>
-
-            <input
-              id="referrerReward"
-              type="number"
-              min="0"
-              value="100"
-            >
-
-          </div>
-
-
-          <div class="form-group">
-
-            <label for="newUserBonus">
-              New User Bonus
-            </label>
-
-            <input
-              id="newUserBonus"
-              type="number"
-              min="0"
-              value="50"
-            >
-
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <button
-        id="saveCoinSettings"
-        class="primary-btn"
-        type="button"
-      >
-        💾 Save Coin Settings
-      </button>
-
-    </section>
-
-
-    <!-- =========================
-         ADS MANAGEMENT
-    ========================== -->
-    <section id="ads" class="page">
-
-      <div class="page-header">
-
-        <div>
-          <span class="eyebrow">MONETIZATION</span>
-          <h1>Ads Management</h1>
-          <p>Manage approved ad-network links and code.</p>
-        </div>
-
-      </div>
-
-
-      <!-- BANNER -->
-      <div class="panel">
-
-        <div class="panel-header">
-
-          <div>
-            <h2>📢 Banner Ad</h2>
-            <p>Banner advertisement configuration.</p>
-          </div>
-
-          <label class="switch">
-            <input
-              type="checkbox"
-              id="bannerAdEnabled"
-            >
-            <span></span>
-          </label>
-
-        </div>
-
-
-        <div class="form-group">
-
-          <label for="bannerAdCode">
-            Banner Ad Code / Link
-          </label>
-
-          <textarea
-            id="bannerAdCode"
-            rows="5"
-            placeholder="Paste approved banner code or ad link..."
-          ></textarea>
-
-        </div>
-
-      </div>
-
-
-      <!-- DIRECT LINK -->
-      <div class="panel">
-
-        <div class="panel-header">
-
-          <div>
-            <h2>🔗 Direct Link Ad</h2>
-            <p>Direct-link advertisement URL.</p>
-          </div>
-
-          <label class="switch">
-            <input
-              type="checkbox"
-              id="directLinkEnabled"
-            >
-            <span></span>
-          </label>
-
-        </div>
-
-
-        <div class="form-group">
-
-          <label for="directLinkUrl">
-            Direct Link URL
-          </label>
-
-          <input
-            id="directLinkUrl"
-            type="url"
-            placeholder="Paste approved Direct-Link URL..."
-          >
-
-        </div>
-
-      </div>
-
-
-      <!-- POPUNDER -->
-      <div class="panel">
-
-        <div class="panel-header">
-
-          <div>
-            <h2>🪟 Popunder</h2>
-            <p>Approved popunder ad configuration.</p>
-          </div>
-
-          <label class="switch">
-            <input
-              type="checkbox"
-              id="popunderEnabled"
-            >
-            <span></span>
-          </label>
-
-        </div>
-
-
-        <div class="form-group">
-
-          <label for="popunderCode">
-            Popunder Code / Link
-          </label>
-
-          <textarea
-            id="popunderCode"
-            rows="5"
-            placeholder="Paste approved popunder code or link..."
-          ></textarea>
-
-        </div>
-
-      </div>
-
-
-      <!-- SOCIAL BAR -->
-      <div class="panel">
-
-        <div class="panel-header">
-
-          <div>
-            <h2>📱 Social Bar</h2>
-            <p>Social-bar advertisement configuration.</p>
-          </div>
-
-          <label class="switch">
-            <input
-              type="checkbox"
-              id="socialBarEnabled"
-            >
-            <span></span>
-          </label>
-
-        </div>
-
-
-        <div class="form-group">
-
-          <label for="socialBarCode">
-            Social Bar Code
-          </label>
-
-          <textarea
-            id="socialBarCode"
-            rows="5"
-            placeholder="Paste approved social-bar code..."
-          ></textarea>
-
-        </div>
-
-      </div>
-
-
-      <!-- VIDEO AD -->
-      <div class="panel">
-
-        <div class="panel-header">
-
-          <div>
-            <h2>🎬 Video Ad</h2>
-            <p>Configure when the video advertisement should appear.</p>
-          </div>
-
-          <label class="switch">
-            <input
-              type="checkbox"
-              id="videoAdEnabled"
-            >
-            <span></span>
-          </label>
-
-        </div>
-
-
-        <div class="form-grid">
-
-          <div class="form-group">
-
-            <label for="videoAdCode">
-              Video Ad Code / Link
-            </label>
-
-            <textarea
-              id="videoAdCode"
-              rows="5"
-              placeholder="Paste approved video ad code or link..."
-            ></textarea>
-
-          </div>
-
-
-          <div class="form-group">
-
-            <label for="videoAdDelay">
-              Show Ad After
-            </label>
-
-            <select id="videoAdDelay">
-
-              <option value="10">10 Seconds</option>
-              <option value="20">20 Seconds</option>
-              <option value="30" selected>30 Seconds</option>
-              <option value="60">60 Seconds</option>
-              <option value="90">90 Seconds</option>
-              <option value="120">120 Seconds</option>
-
-            </select>
-
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <!-- INTERSTITIAL -->
-      <div class="panel">
-
-        <div class="panel-header">
-
-          <div>
-            <h2>📺 Interstitial Ad</h2>
-            <p>Advertisement displayed between supported page actions.</p>
-          </div>
-
-          <label class="switch">
-            <input
-              type="checkbox"
-              id="interstitialEnabled"
-            >
-            <span></span>
-          </label>
-
-        </div>
-
-
-        <div class="form-group">
-
-          <label for="interstitialCode">
-            Interstitial Code / Link
-          </label>
-
-          <textarea
-            id="interstitialCode"
-            rows="5"
-            placeholder="Paste approved interstitial code or link..."
-          ></textarea>
-
-        </div>
-
-      </div>
-
-
-      <!-- CUSTOM -->
-      <div class="panel">
-
-        <div class="panel-header">
-
-          <div>
-            <h2>🧩 Custom Ad</h2>
-            <p>Custom approved advertisement configuration.</p>
-          </div>
-
-          <label class="switch">
-            <input
-              type="checkbox"
-              id="customAdEnabled"
-            >
-            <span></span>
-          </label>
-
-        </div>
-
-
-        <div class="form-group">
-
-          <label for="customAdCode">
-            Custom Ad Code
-          </label>
-
-          <textarea
-            id="customAdCode"
-            rows="7"
-            placeholder="Paste approved custom ad code..."
-          ></textarea>
-
-        </div>
-
-      </div>
-
-
-      <button
-        id="saveAdSettings"
-        class="primary-btn"
-        type="button"
-      >
-        💾 Save Ad Settings
-      </button>
-
-    </section>
-
-
-    <!-- =========================
-         HOMEPAGE CONTENT
-    ========================== -->
-    <section id="homepage" class="page">
-
-      <div class="page-header">
-
-        <div>
-          <span class="eyebrow">WEBSITE CONTENT</span>
-          <h1>Homepage Content</h1>
-          <p>Write and manage homepage text manually.</p>
-        </div>
-
-      </div>
-
-
-      <div class="panel">
-
-        <div class="form-grid">
-
-          <div class="form-group">
-
-            <label for="websiteName">
-              Website Name
-            </label>
-
-            <input
-              id="websiteName"
-              type="text"
-              placeholder="Your Website Name"
-            >
-
-          </div>
-
-
-          <div class="form-group">
-
-            <label for="welcomeTitle">
-              Welcome Title
-            </label>
-
-            <input
-              id="welcomeTitle"
-              type="text"
-              placeholder="Welcome to our website"
-            >
-
-          </div>
-
-        </div>
-
-
-        <div class="form-group">
-
-          <label for="welcomeDescription">
-            Welcome Description
-          </label>
-
-          <textarea
-            id="welcomeDescription"
-            rows="5"
-            placeholder="Write your welcome message..."
-          ></textarea>
-
-        </div>
-
-
-        <div class="form-group">
-
-          <label for="announcement">
-            Announcement
-          </label>
-
-          <textarea
-            id="announcement"
-            rows="4"
-            placeholder="Write an announcement..."
-          ></textarea>
-
-        </div>
-
-
-        <div class="form-grid">
-
-          <div class="form-group">
-
-            <label for="featuredTitle">
-              Featured Section Title
-            </label>
-
-            <input
-              id="featuredTitle"
-              type="text"
-              placeholder="Featured Videos"
-            >
-
-          </div>
-
-
-          <div class="form-group">
-
-            <label for="categoryTitle">
-              Category Section Title
-            </label>
-
-            <input
-              id="categoryTitle"
-              type="text"
-              placeholder="Browse Categories"
-            >
-
-          </div>
-
-        </div>
-
-
-        <div class="form-grid">
-
-          <div class="form-group">
-
-            <label for="telegramButtonText">
-              Telegram Button Text
-            </label>
-
-            <input
-              id="telegramButtonText"
-              type="text"
-              placeholder="Join Telegram"
-            >
-
-          </div>
-
-
-          <div class="form-group">
-
-            <label for="telegramLink">
-              Telegram Link
-            </label>
-
-            <input
-              id="telegramLink"
-              type="url"
-              placeholder="Telegram link..."
-            >
-
-          </div>
-
-        </div>
-
-
-        <div class="form-group">
-
-          <label for="footerText">
-            Footer Text
-          </label>
-
-          <textarea
-            id="footerText"
-            rows="3"
-            placeholder="Footer text..."
-          ></textarea>
-
-        </div>
-
-
-        <button
-          id="saveHomepageSettings"
-          class="primary-btn"
-          type="button"
-        >
-          💾 Save Homepage Settings
-        </button>
-
-      </div>
-
-    </section>
-
-
-    <!-- =========================
-         NOTIFICATIONS
-    ========================== -->
-    <section id="notifications" class="page">
-
-      <div class="page-header">
-
-        <div>
-          <span class="eyebrow">MESSAGING</span>
-          <h1>Notifications</h1>
-          <p>Send notifications to eligible users.</p>
-        </div>
-
-      </div>
-
-
-      <div class="panel">
-
-        <div class="form-group">
-
-          <label for="notificationTitle">
-            Notification Title
-          </label>
-
-          <input
-            id="notificationTitle"
-            type="text"
-            placeholder="New notification"
-          >
-
-        </div>
-
-
-        <div class="form-group">
-
-          <label for="notificationMessage">
-            Notification Message
-          </label>
-
-          <textarea
-            id="notificationMessage"
-            rows="6"
-            placeholder="Write notification..."
-          ></textarea>
-
-        </div>
-
-
-        <button
-          id="sendNotification"
-          class="primary-btn"
-          type="button"
-        >
-          📤 Send Notification
-        </button>
-
-      </div>
-
-    </section>
-
-
-    <!-- =========================
-         SUBSCRIPTIONS
-    ========================== -->
-    <section id="subscriptions" class="page">
-
-      <div class="page-header">
-
-        <div>
-          <span class="eyebrow">PREMIUM</span>
-          <h1>Subscriptions</h1>
-          <p>Manage premium membership settings.</p>
-        </div>
-
-      </div>
-
-
-      <div class="panel">
-
-        <div class="empty-state">
-
-          <div>💎</div>
-
-          <strong>Subscription Management</strong>
-
-          <p>
-            Premium plans can be connected to the backend.
-          </p>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- =========================
-         SETTINGS
-    ========================== -->
-    <section id="settings" class="page">
-
-      <div class="page-header">
-
-        <div>
-          <span class="eyebrow">SYSTEM</span>
-          <h1>Settings</h1>
-          <p>General website settings.</p>
-        </div>
-
-      </div>
-
-
-      <div class="panel">
-
-        <div class="form-group">
-
-          <label for="siteStatus">
-            Site Status
-          </label>
-
-          <select id="siteStatus">
-
-            <option value="online">
-              Online
-            </option>
-
-            <option value="maintenance">
-              Maintenance
-            </option>
-
-          </select>
-
-        </div>
-
-
-        <div class="form-group">
-
-          <label for="adminEmail">
-            Admin Email
-          </label>
-
-          <input
-            id="adminEmail"
-            type="email"
-            placeholder="Admin email"
-          >
-
-        </div>
-
-
-        <div class="form-group">
-
-          <label for="adminSessionTimeout">
-            Admin Session Timeout
-          </label>
-
-          <select id="adminSessionTimeout">
-
-            <option value="15">15 Minutes</option>
-            <option value="30" selected>30 Minutes</option>
-            <option value="60">60 Minutes</option>
-            <option value="120">120 Minutes</option>
-
-          </select>
-
-        </div>
-
-
-        <button
-          id="saveSettings"
-          class="primary-btn"
-          type="button"
-        >
-          💾 Save Settings
-        </button>
-
-      </div>
-
-    </section>
-
-  </main>
-
-
-  <!-- =========================
-       CATEGORY MODAL
-  ========================== -->
-  <div id="categoryModal" class="modal">
-
-    <div class="modal-box">
-
-      <button
-        class="close-modal"
-        data-close="categoryModal"
-        type="button"
-      >
-        ×
-      </button>
-
-      <h2>Add Category</h2>
-
-      <form id="categoryForm">
-
-        <div class="form-group">
-
-          <label for="categoryName">
-            Category Name
-          </label>
-
-          <input
-            id="categoryName"
-            type="text"
-            required
-            placeholder="Example: Action"
-          >
-
-        </div>
-
-        <button
-          type="submit"
-          class="primary-btn"
-        >
-          Create Category
-        </button>
-
-      </form>
-
-    </div>
-
-  </div>
-
-
-  <!-- =========================
-       UPLOAD VIDEO MODAL
-  ========================== -->
-  <div id="uploadModal" class="modal">
-
-    <div class="modal-box">
-
-      <button
-        class="close-modal"
-        data-close="uploadModal"
-        type="button"
-      >
-        ×
-      </button>
-
-      <h2>Upload Video</h2>
-
-      <form id="uploadForm">
-
-        <div class="form-group">
-
-          <label for="videoTitle">
-            Video Title
-          </label>
-
-          <input
-            id="videoTitle"
-            type="text"
-            required
-            placeholder="Video title"
-          >
-
-        </div>
-
-
-        <div class="form-group">
-
-          <label for="videoDescription">
-            Description
-          </label>
-
-          <textarea
-            id="videoDescription"
-            rows="4"
-            placeholder="Optional description..."
-          ></textarea>
-
-        </div>
-
-
-        <div class="form-group">
-
-          <label for="videoCategory">
-            Category
-          </label>
-
-          <select id="videoCategory" required>
-
-            <option value="">
-              Select category
-            </option>
-
-          </select>
-
-        </div>
-
-
-        <div class="form-group">
-
-          <label for="videoFile">
-            Video File
-          </label>
-
-          <input
-            id="videoFile"
-            type="file"
-            accept="video/*"
-            required
-          >
-
-        </div>
-
-
-        <div class="form-group">
-
-          <label for="videoThumbnail">
-            Thumbnail
-          </label>
-
-          <input
-            id="videoThumbnail"
-            type="file"
-            accept="image/*"
-          >
-
-        </div>
-
-
-        <label class="checkbox-row">
-
-          <input
-            id="publishVideo"
-            type="checkbox"
-            checked
-          >
-
-          <span>
-            Publish immediately
-          </span>
-
-        </label>
-
-
-        <button
-          type="submit"
-          class="primary-btn"
-        >
-          🎬 Add Video
-        </button>
-
-      </form>
-
-    </div>
-
-  </div>
-
-
-  <!-- =========================
-       TOAST
-  ========================== -->
-  <div id="toast" class="toast"></div>
-
-
-  <!-- =========================
-       JAVASCRIPT
-  ========================== -->
-  <script src="admin.js"></script>
-
-</body>
-</html>
+/* =========================================================
+   VIDEO-HUB ADMIN PANEL
+   admin.css
+   ========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f5f7fb;
+  color: #1f2937;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/* =========================
+   LAYOUT
+   ========================= */
+
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 250px;
+  background: #111827;
+  color: #fff;
+  padding: 20px 14px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.main-content {
+  width: calc(100% - 250px);
+  margin-left: 250px;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+/* =========================
+   BRAND
+   ========================= */
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px 24px;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+  margin-bottom: 18px;
+}
+
+.brand-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2563eb;
+  font-size: 20px;
+}
+
+.brand strong {
+  display: block;
+  font-size: 16px;
+}
+
+.brand small {
+  display: block;
+  margin-top: 3px;
+  color: #9ca3af;
+  font-size: 11px;
+}
+
+/* =========================
+   SIDEBAR MENU
+   ========================= */
+
+.sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.menu-item {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: #d1d5db;
+  padding: 12px 13px;
+  border-radius: 8px;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background .2s ease, color .2s ease;
+}
+
+.menu-item:hover {
+  background: rgba(255,255,255,.08);
+  color: #fff;
+}
+
+.menu-item.active {
+  background: #2563eb;
+  color: #fff;
+}
+
+.menu-item span {
+  margin-left: 6px;
+}
+
+/* =========================
+   MOBILE HEADER
+   ========================= */
+
+.mobile-header {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  height: 58px;
+  padding: 0 15px;
+  background: #111827;
+  color: #fff;
+}
+
+.icon-btn {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 20px;
+  padding: 8px;
+}
+
+/* =========================
+   PAGE HEADER
+   ========================= */
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 22px;
+}
+
+.page-header h1,
+.page-header h2 {
+  margin: 0;
+}
+
+.page-title {
+  font-size: 25px;
+  font-weight: 700;
+}
+
+.page-subtitle {
+  margin-top: 5px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* =========================
+   CARDS
+   ========================= */
+
+.card,
+.panel,
+.section-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.04);
+}
+
+.card h2,
+.card h3,
+.panel h2,
+.panel h3,
+.section-card h2,
+.section-card h3 {
+  margin-top: 0;
+}
+
+/* =========================
+   DASHBOARD STATS
+   ========================= */
+
+.stats-grid,
+.report-stats,
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 18px;
+  min-height: 110px;
+}
+
+.stat-card .stat-title {
+  color: #6b7280;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.stat-card .stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.stat-card .stat-icon {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+/* =========================
+   TABLE
+   ========================= */
+
+.report-table,
+.admin-table,
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.report-table th,
+.report-table td,
+.admin-table th,
+.admin-table td,
+table th,
+table td {
+  padding: 13px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+  vertical-align: middle;
+}
+
+.report-table th,
+.admin-table th,
+table th {
+  background: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+}
+
+.report-table tr:hover td,
+.admin-table tr:hover td,
+table tr:hover td {
+  background: #fafafa;
+}
+
+/* =========================
+   FORMS
+   ========================= */
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label,
+label {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+  color: #111827;
+  padding: 11px 12px;
+  font: inherit;
+  outline: none;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+}
+
+textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+/* =========================
+   BUTTONS
+   ========================= */
+
+button,
+.btn {
+  font-family: inherit;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 15px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: #1d4ed8;
+}
+
+.btn-success {
+  background: #16a34a;
+  color: #fff;
+}
+
+.btn-danger {
+  background: #dc2626;
+  color: #fff;
+}
+
+.btn-warning {
+  background: #f59e0b;
+  color: #fff;
+}
+
+.btn-secondary {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.btn + .btn {
+  margin-left: 6px;
+}
+
+/* =========================
+   QUICK ACTIONS
+   ========================= */
+
+.quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* =========================
+   BADGES
+   ========================= */
+
+.badge {
+  display: inline-block;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge-success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge-danger {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.badge-warning {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge-info {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+/* =========================
+   VIDEOS
+   ========================= */
+
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.video-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.video-card img,
+.video-card video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.video-card-body {
+  padding: 14px;
+}
+
+.video-card-title {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.video-card-meta {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+/* =========================
+   EMPTY STATE
+   ========================= */
+
+.empty-state {
+  padding: 45px 20px;
+  text-align: center;
+  color: #6b7280;
+}
+
+.empty-state h3 {
+  color: #374151;
+  margin-bottom: 7px;
+}
+
+/* =========================
+   ALERTS / NOTIFICATIONS
+   ========================= */
+
+.alert {
+  padding: 12px 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.alert-success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.alert-error,
+.alert-danger {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.alert-warning {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.alert-info {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+/* =========================
+   MODAL
+   ========================= */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0,0,0,.55);
+  z-index: 3000;
+}
+
+.modal.show,
+.modal.active {
+  display: flex;
+}
+
+.modal-content {
+  width: min(600px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 12px;
+  padding: 22px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+/* =========================
+   PAGINATION
+   ========================= */
+
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 18px;
+}
+
+.pagination button {
+  border: 1px solid #d1d5db;
+  background: #fff;
+  color: #374151;
+  border-radius: 6px;
+  padding: 7px 11px;
+  cursor: pointer;
+}
+
+.pagination button.active,
+.pagination button:hover {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+}
+
+/* =========================
+   LOADING
+   ========================= */
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100px;
+  color: #6b7280;
+}
+
+.spinner {
+  width: 25px;
+  height: 25px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================
+   RESPONSIVE
+   ========================= */
+
+@media (max-width: 1000px) {
+  .stats-grid,
+  .report-stats,
+  .dashboard-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .video-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform .25s ease;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .main-content {
+    width: 100%;
+    margin-left: 0;
+    padding: 15px;
+  }
+
+  .mobile-header {
+    display: flex;
+  }
+
+  .stats-grid,
+  .report-stats,
+  .dashboard-stats,
+  .video-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .table-wrapper {
+    overflow-x: auto;
+  }
+
+  table {
+    min-width: 650px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    padding: 12px;
+  }
+
+  .card,
+  .panel,
+  .section-card {
+    padding: 15px;
+  }
+
+  .stat-card {
+    padding: 15px;
+  }
+
+  .quick-actions {
+    flex-direction: column;
+  }
+
+  .quick-actions .btn {
+    width: 100%;
+  }
+}
