@@ -1,1 +1,111 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b0d12">
+  <title>Video Hub</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-icon">▶</div>
+      <div>
+        <strong>Video Hub</strong>
+        <small>Watch & Discover</small>
+      </div>
+    </div>
+
+    <button class="notification-btn" onclick="openNotifications()">🔔</button>
+  </header>
+
+  <main>
+
+    <section class="welcome">
+      <div>
+        <span class="welcome-label">WELCOME</span>
+        <h1>Discover amazing videos 🎬</h1>
+        <p>Watch the latest and trending videos in one place.</p>
+      </div>
+    </section>
+
+    <div class="categories">
+      <button class="category active">All</button>
+      <button class="category">🔥 Trending</button>
+      <button class="category">😂 Comedy</button>
+      <button class="category">🎬 Movies</button>
+      <button class="category">⚡ Shorts</button>
+    </div>
+
+    <section class="section-title">
+      <div>
+        <h2>🔥 Trending Videos</h2>
+        <p>Popular videos right now</p>
+      </div>
+      <button onclick="showAllVideos()">See All</button>
+    </section>
+
+    <section id="videoGrid" class="video-grid"></section>
+
+  </main>
+
+  <div id="videoModal" class="modal">
+    <div class="modal-content">
+      <button class="close" onclick="closeVideo()">✕</button>
+
+      <div class="player">
+        <div class="play-icon">▶</div>
+      </div>
+
+      <h2 id="modalTitle">Video Title</h2>
+      <p id="modalInfo">Video information</p>
+
+      <button class="watch-btn">▶ Start Watching</button>
+    </div>
+  </div>
+
+  <div id="notificationModal" class="modal">
+    <div class="modal-content notification-box">
+      <button class="close" onclick="closeNotifications()">✕</button>
+      <h2>🔔 Notifications</h2>
+      <p>No new notifications right now.</p>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+
+    <button class="nav-item active">
+      <span>🏠</span>
+      <small>Home</small>
+    </button>
+
+    <button class="nav-item">
+      <span>🎬</span>
+      <small>Videos</small>
+    </button>
+
+    <button class="nav-item">
+      <span>🔥</span>
+      <small>Trending</small>
+    </button>
+
+    <button class="nav-item">
+      <span>🪙</span>
+      <small>Coins</small>
+    </button>
+
+    <button class="nav-item">
+      <span>👤</span>
+      <small>Profile</small>
+    </button>
+
+  </nav>
+
+  <script src="app.js"></script>
+
+</body>
+</html>
