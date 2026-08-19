@@ -1,32 +1,57 @@
 <!-- =========================================================
      SUPABASE CONNECTION
 ========================================================= -->
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-  const SUPABASE_URL =
+  window.SUPABASE_URL =
     "https://ounhudbdznqgfwmvpczk.supabase.co";
 
-  const SUPABASE_PUBLISHABLE_KEY =
+  window.SUPABASE_PUBLISHABLE_KEY =
     "sb_publishable_2xAQFQ3_oNhVEdard3MJtA_YoRX5Ish";
 
-  const supabaseClient =
-    window.supabase
-      ? window.supabase.createClient(
-          SUPABASE_URL,
-          SUPABASE_PUBLISHABLE_KEY
-        )
-      : null;
+  window.SUPABASE_TABLE = "site_settings";
 
   window.ADMIN_SUPABASE = {
-    client: supabaseClient,
-    url: SUPABASE_URL,
-    publishableKey: SUPABASE_PUBLISHABLE_KEY
+    client: null,
+    url: window.SUPABASE_URL,
+    publishableKey: window.SUPABASE_PUBLISHABLE_KEY
   };
 
-  console.log(
-    supabaseClient
-      ? "Supabase connected."
-      : "Supabase library failed to load."
-  );
+  function initSupabase() {
+    if (
+      window.supabase &&
+      typeof window.supabase.createClient === "function" &&
+      window.SUPABASE_URL &&
+      window.SUPABASE_PUBLISHABLE_KEY
+    ) {
+      try {
+        window.ADMIN_SUPABASE.client =
+          window.supabase.createClient(
+            window.SUPABASE_URL,
+            window.SUPABASE_PUBLISHABLE_KEY
+          );
+
+        console.log("Supabase connected.");
+        return true;
+      } catch (error) {
+        console.error("Supabase initialization failed:", error);
+        return false;
+      }
+    }
+
+    console.error("Supabase library failed to load.");
+    return false;
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initSupabase);
+  } else {
+    initSupabase();
+  }
 </script>
+<script src="admin.js"></script>
+
+</body>
+</html>
