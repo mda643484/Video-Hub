@@ -1,226 +1,1266 @@
+"use strict";
 
-document.addEventListener("DOMContentLoaded", () => {
+/*
+=========================================================
+ ADMIN PANEL - MAIN JAVASCRIPT
+=========================================================
 
-  /* =========================
-     BASIC DATA
-  ========================= */
+Frontend configuration/settings manager.
 
-  let categories = [
-    "Comedy",
-    "Movies",
-    "Shorts",
-    "Trending"
-  ];
-
-  let videos = [];
-
-  let users = [];
-
-  let currentPage = "dashboard";
+IMPORTANT:
+- Do NOT put real admin passwords, bot tokens or API secrets here.
+- Production coin balances/rewards must be verified server-side.
+- Ad networks must be used according to their policies.
+=========================================================
+*/
 
 
-  /* =========================
-     ELEMENTS
-  ========================= */
+/* =======================================================
+   DEFAULT CONFIG
+======================================================= */
 
-  const pages = document.querySelectorAll(".page");
-  const menuItems = document.querySelectorAll(".menu-item");
+const DEFAULT_CONFIG = {
 
-  const toast = document.getElementById("toast");
+  coins: {
+    watchAdEnabled: true,
+    adReward: 25,
+    dailyAdLimit: 20,
 
-  const sidebar = document.querySelector(".sidebar");
-  const mobileMenu = document.getElementById("mobileMenu");
+    videoClaimCost: 50,
+
+    dailyRewardEnabled: true,
+
+    dailyRewards: [
+      25,
+      50,
+      75,
+      100,
+      125,
+      150,
+      600
+    ],
+
+    dailyClaimAdEnabled: true,
+    dailyClaimAdUrl: "",
+
+    referralEnabled: true,
+    referrerReward: 100,
+    newUserBonus: 50
+  },
 
 
-  /* =========================
-     TOAST
-  ========================= */
+  ads: {
+    bannerEnabled: false,
+    bannerCode: "",
 
-  function showToast(message) {
+    directLinkEnabled: false,
+    directLinkUrl: "",
 
-    if (!toast) return;
+    popunderEnabled: false,
+    popunderCode: "",
 
-    toast.textContent = message;
+    socialBarEnabled: false,
+    socialBarCode: "",
 
-    toast.classList.add("show");
+    videoEnabled: false,
+    videoCode: "",
+    videoDelay: 30,
 
-    setTimeout(() => {
-      toast.classList.remove("show");
-    }, 2500);
+    interstitialEnabled: false,
+    interstitialCode: "",
+
+    customEnabled: false,
+    customCode: ""
+  },
+
+
+  homepage: {
+    websiteName: "",
+    welcomeTitle: "",
+    welcomeDescription: "",
+    announcement: "",
+    featuredTitle: "",
+    categoryTitle: "",
+    telegramButtonText: "",
+    telegramLink: "",
+    footerText: ""
+  },
+
+
+  settings: {
+    siteStatus: "online",
+    adminEmail: "",
+    sessionTimeout: 30
   }
+};
 
 
-  /* =========================
-     PAGE NAVIGATION
-  ========================= */
+/* =======================================================
+   STORAGE KEYS
+======================================================= */
 
-  function openPage(pageName) {
+const STORAGE_KEYS = {
 
-    currentPage = pageName;
+  config: "adminPanelConfig",
 
-    pages.forEach(page => {
-      page.classList.remove("active-page");
-    });
+  videos: "adminVideos",
 
-    const target = document.getElementById(pageName);
+  categories: "adminCategories",
 
-    if (target) {
-      target.classList.add("active-page");
+  notifications: "adminNotifications"
+
+};
+
+
+/* =======================================================
+   HELPERS
+======================================================= */
+
+function cloneDefaultConfig() {
+
+  return JSON.parse(
+    JSON.stringify(DEFAULT_CONFIG)
+  );
+
+}
+
+
+function loadConfig() {
+
+  try {
+
+    const saved = localStorage.getItem(
+      STORAGE_KEYS.config
+    );
+
+    if (!saved) {
+
+      return cloneDefaultConfig();
+
     }
 
-    menuItems.forEach(item => {
+    const parsed = JSON.parse(saved);
 
-      item.classList.remove("active");
+    return mergeObjects(
+      cloneDefaultConfig(),
+      parsed
+    );
 
-      if (item.dataset.page === pageName) {
-        item.classList.add("active");
-      }
+  } catch (error) {
 
-    });
+    console.error(
+      "Could not load configuration:",
+      error
+    );
 
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    });
+    return cloneDefaultConfig();
 
-    if (sidebar) {
-      sidebar.classList.remove("open");
-    }
-
-    refreshPage();
   }
 
+}
 
-  menuItems.forEach(item => {
 
-    item.addEventListener("click", () => {
+function mergeObjects(base, extra) {
 
-      const page = item.dataset.page;
+  const result = {
+    ...base
+  };
 
-      if (page) {
-        openPage(page);
-      }
+  Object.keys(extra || {}).forEach(key => {
 
-    });
+    if (
+      extra[key] &&
+      typeof extra[key] === "object" &&
+      !Array.isArray(extra[key]) &&
+      typeof base[key] === "object" &&
+      base[key] !== null
+    ) {
+
+      result[key] = mergeObjects(
+        base[key],
+        extra[key]
+      );
+
+    } else {
+
+      result[key] = extra[key];
+
+    }
 
   });
 
+  return result;
 
-  document.querySelectorAll("[data-page-target]").forEach(button => {
+}
 
-    button.addEventListener("click", () => {
 
-      const page = button.dataset.pageTarget;
+let config = loadConfig();
 
-      if (page) {
-        openPage(page);
-      }
+
+function saveConfig() {
+
+  localStorage.setItem(
+    STORAGE_KEYS.config,
+    JSON.stringify(config)
+  );
+
+}
+
+
+function getElement(id) {
+
+  return document.getElementById(id);
+
+}
+
+
+function setValue(id, value) {
+
+  const element = getElement(id);
+
+  if (!element) return;
+
+  element.value =
+    value === undefined || value === null
+      ? ""
+      : value;
+
+}
+
+
+function setChecked(id, value) {
+
+  const element = getElement(id);
+
+  if (!element) return;
+
+  element.checked = Boolean(value);
+
+}
+
+
+function getNumber(id, fallback = 0) {
+
+  const element = getElement(id);
+
+  if (!element) return fallback;
+
+  const value = Number(element.value);
+
+  return Number.isFinite(value)
+    ? value
+    : fallback;
+
+}
+
+
+function getText(id) {
+
+  const element = getElement(id);
+
+  return element
+    ? element.value.trim()
+    : "";
+
+}
+
+
+function showToast(message, type = "success") {
+
+  const toast = getElement("toast");
+
+  if (!toast) {
+
+    alert(message);
+
+    return;
+
+  }
+
+  toast.textContent = message;
+
+  toast.dataset.type = type;
+
+  toast.classList.add("show");
+
+  clearTimeout(
+    showToast.timer
+  );
+
+  showToast.timer = setTimeout(() => {
+
+    toast.classList.remove("show");
+
+  }, 3000);
+
+}
+
+
+/* =======================================================
+   NAVIGATION
+======================================================= */
+
+function showPage(pageId) {
+
+  document
+    .querySelectorAll(".page")
+    .forEach(page => {
+
+      page.classList.remove(
+        "active-page"
+      );
 
     });
 
-  });
 
+  const target =
+    getElement(pageId);
 
-  /* =========================
-     MOBILE MENU
-  ========================= */
+  if (target) {
 
-  if (mobileMenu) {
-
-    mobileMenu.addEventListener("click", () => {
-
-      sidebar.classList.toggle("open");
-
-    });
-
-  }
-
-
-  /* =========================
-     CATEGORY SYSTEM
-  ========================= */
-
-  const categoryModal =
-    document.getElementById("categoryModal");
-
-  const categoryForm =
-    document.getElementById("categoryForm");
-
-  const categoryName =
-    document.getElementById("categoryName");
-
-  const addCategoryBtn =
-    document.getElementById("addCategoryBtn");
-
-
-  function openCategoryModal() {
-
-    if (!categoryModal) return;
-
-    categoryModal.classList.add("show");
-
-    if (categoryName) {
-      categoryName.focus();
-    }
-
-  }
-
-
-  function closeModal(id) {
-
-    const modal = document.getElementById(id);
-
-    if (modal) {
-      modal.classList.remove("show");
-    }
-
-  }
-
-
-  if (addCategoryBtn) {
-
-    addCategoryBtn.addEventListener(
-      "click",
-      openCategoryModal
+    target.classList.add(
+      "active-page"
     );
 
   }
 
 
-  document.querySelectorAll(".close-modal").forEach(button => {
+  document
+    .querySelectorAll(".menu-item")
+    .forEach(item => {
 
-    button.addEventListener("click", () => {
-
-      closeModal(button.dataset.close);
+      item.classList.toggle(
+        "active",
+        item.dataset.page === pageId
+      );
 
     });
 
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
   });
 
+}
 
-  if (categoryForm) {
 
-    categoryForm.addEventListener("submit", event => {
+function setupNavigation() {
+
+  document
+    .querySelectorAll(".menu-item")
+    .forEach(button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          const page =
+            button.dataset.page;
+
+          if (page) {
+
+            showPage(page);
+
+          }
+
+        }
+      );
+
+    });
+
+
+  document
+    .querySelectorAll(
+      "[data-page-target]"
+    )
+    .forEach(button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          const page =
+            button.dataset.pageTarget;
+
+          if (page) {
+
+            showPage(page);
+
+          }
+
+        }
+      );
+
+    });
+
+}
+
+
+/* =======================================================
+   MOBILE MENU
+======================================================= */
+
+function setupMobileMenu() {
+
+  const button =
+    getElement("mobileMenu");
+
+  const sidebar =
+    document.querySelector(
+      ".sidebar"
+    );
+
+  if (!button || !sidebar) return;
+
+
+  button.addEventListener(
+    "click",
+    () => {
+
+      sidebar.classList.toggle(
+        "open"
+      );
+
+    }
+  );
+
+
+  document
+    .querySelectorAll(".menu-item")
+    .forEach(item => {
+
+      item.addEventListener(
+        "click",
+        () => {
+
+          sidebar.classList.remove(
+            "open"
+          );
+
+        }
+      );
+
+    });
+
+}
+
+
+/* =======================================================
+   COINS SETTINGS
+======================================================= */
+
+function loadCoinSettings() {
+
+  const coins =
+    config.coins;
+
+
+  setChecked(
+    "watchAdRewardEnabled",
+    coins.watchAdEnabled
+  );
+
+
+  setValue(
+    "adRewardCoins",
+    coins.adReward
+  );
+
+
+  setValue(
+    "dailyAdLimit",
+    coins.dailyAdLimit
+  );
+
+
+  setValue(
+    "videoClaimCost",
+    coins.videoClaimCost
+  );
+
+
+  setChecked(
+    "dailyRewardEnabled",
+    coins.dailyRewardEnabled
+  );
+
+
+  setChecked(
+    "dailyClaimAdEnabled",
+    coins.dailyClaimAdEnabled
+  );
+
+
+  setValue(
+    "dailyClaimAdUrl",
+    coins.dailyClaimAdUrl
+  );
+
+
+  setChecked(
+    "referralEnabled",
+    coins.referralEnabled
+  );
+
+
+  setValue(
+    "referrerReward",
+    coins.referrerReward
+  );
+
+
+  setValue(
+    "newUserBonus",
+    coins.newUserBonus
+  );
+
+}
+
+
+function saveCoinSettings() {
+
+  config.coins.watchAdEnabled =
+    Boolean(
+      getElement(
+        "watchAdRewardEnabled"
+      )?.checked
+    );
+
+
+  config.coins.adReward =
+    Math.max(
+      1,
+      getNumber(
+        "adRewardCoins",
+        25
+      )
+    );
+
+
+  config.coins.dailyAdLimit =
+    Math.max(
+      1,
+      getNumber(
+        "dailyAdLimit",
+        20
+      )
+    );
+
+
+  config.coins.videoClaimCost =
+    Math.max(
+      0,
+      getNumber(
+        "videoClaimCost",
+        50
+      )
+    );
+
+
+  config.coins.dailyRewardEnabled =
+    Boolean(
+      getElement(
+        "dailyRewardEnabled"
+      )?.checked
+    );
+
+
+  config.coins.dailyClaimAdEnabled =
+    Boolean(
+      getElement(
+        "dailyClaimAdEnabled"
+      )?.checked
+    );
+
+
+  config.coins.dailyClaimAdUrl =
+    getText(
+      "dailyClaimAdUrl"
+    );
+
+
+  config.coins.referralEnabled =
+    Boolean(
+      getElement(
+        "referralEnabled"
+      )?.checked
+    );
+
+
+  config.coins.referrerReward =
+    Math.max(
+      0,
+      getNumber(
+        "referrerReward",
+        100
+      )
+    );
+
+
+  config.coins.newUserBonus =
+    Math.max(
+      0,
+      getNumber(
+        "newUserBonus",
+        50
+      )
+    );
+
+
+  /*
+   * Fixed 7-day reward.
+   * These values are intentionally not editable
+   * from the frontend.
+   */
+
+  config.coins.dailyRewards = [
+    25,
+    50,
+    75,
+    100,
+    125,
+    150,
+    600
+  ];
+
+
+  saveConfig();
+
+
+  showToast(
+    "Coin settings saved successfully."
+  );
+
+}
+
+
+/* =======================================================
+   ADS SETTINGS
+======================================================= */
+
+function loadAdSettings() {
+
+  const ads =
+    config.ads;
+
+
+  setChecked(
+    "bannerAdEnabled",
+    ads.bannerEnabled
+  );
+
+  setValue(
+    "bannerAdCode",
+    ads.bannerCode
+  );
+
+
+  setChecked(
+    "directLinkEnabled",
+    ads.directLinkEnabled
+  );
+
+  setValue(
+    "directLinkUrl",
+    ads.directLinkUrl
+  );
+
+
+  setChecked(
+    "popunderEnabled",
+    ads.popunderEnabled
+  );
+
+  setValue(
+    "popunderCode",
+    ads.popunderCode
+  );
+
+
+  setChecked(
+    "socialBarEnabled",
+    ads.socialBarEnabled
+  );
+
+  setValue(
+    "socialBarCode",
+    ads.socialBarCode
+  );
+
+
+  setChecked(
+    "videoAdEnabled",
+    ads.videoEnabled
+  );
+
+  setValue(
+    "videoAdCode",
+    ads.videoCode
+  );
+
+  setValue(
+    "videoAdDelay",
+    ads.videoDelay
+  );
+
+
+  setChecked(
+    "interstitialEnabled",
+    ads.interstitialEnabled
+  );
+
+  setValue(
+    "interstitialCode",
+    ads.interstitialCode
+  );
+
+
+  setChecked(
+    "customAdEnabled",
+    ads.customEnabled
+  );
+
+  setValue(
+    "customAdCode",
+    ads.customCode
+  );
+
+}
+
+
+function saveAdSettings() {
+
+  config.ads.bannerEnabled =
+    Boolean(
+      getElement(
+        "bannerAdEnabled"
+      )?.checked
+    );
+
+  config.ads.bannerCode =
+    getText(
+      "bannerAdCode"
+    );
+
+
+  config.ads.directLinkEnabled =
+    Boolean(
+      getElement(
+        "directLinkEnabled"
+      )?.checked
+    );
+
+  config.ads.directLinkUrl =
+    getText(
+      "directLinkUrl"
+    );
+
+
+  config.ads.popunderEnabled =
+    Boolean(
+      getElement(
+        "popunderEnabled"
+      )?.checked
+    );
+
+  config.ads.popunderCode =
+    getText(
+      "popunderCode"
+    );
+
+
+  config.ads.socialBarEnabled =
+    Boolean(
+      getElement(
+        "socialBarEnabled"
+      )?.checked
+    );
+
+  config.ads.socialBarCode =
+    getText(
+      "socialBarCode"
+    );
+
+
+  config.ads.videoEnabled =
+    Boolean(
+      getElement(
+        "videoAdEnabled"
+      )?.checked
+    );
+
+  config.ads.videoCode =
+    getText(
+      "videoAdCode"
+    );
+
+  config.ads.videoDelay =
+    Math.max(
+      1,
+      getNumber(
+        "videoAdDelay",
+        30
+      )
+    );
+
+
+  config.ads.interstitialEnabled =
+    Boolean(
+      getElement(
+        "interstitialEnabled"
+      )?.checked
+    );
+
+  config.ads.interstitialCode =
+    getText(
+      "interstitialCode"
+    );
+
+
+  config.ads.customEnabled =
+    Boolean(
+      getElement(
+        "customAdEnabled"
+      )?.checked
+    );
+
+  config.ads.customCode =
+    getText(
+      "customAdCode"
+    );
+
+
+  saveConfig();
+
+
+  showToast(
+    "Ad settings saved successfully."
+  );
+
+}
+
+
+/* =======================================================
+   HOMEPAGE SETTINGS
+======================================================= */
+
+function loadHomepageSettings() {
+
+  const home =
+    config.homepage;
+
+
+  setValue(
+    "websiteName",
+    home.websiteName
+  );
+
+  setValue(
+    "welcomeTitle",
+    home.welcomeTitle
+  );
+
+  setValue(
+    "welcomeDescription",
+    home.welcomeDescription
+  );
+
+  setValue(
+    "announcement",
+    home.announcement
+  );
+
+  setValue(
+    "featuredTitle",
+    home.featuredTitle
+  );
+
+  setValue(
+    "categoryTitle",
+    home.categoryTitle
+  );
+
+  setValue(
+    "telegramButtonText",
+    home.telegramButtonText
+  );
+
+  setValue(
+    "telegramLink",
+    home.telegramLink
+  );
+
+  setValue(
+    "footerText",
+    home.footerText
+  );
+
+}
+
+
+function saveHomepageSettings() {
+
+  config.homepage.websiteName =
+    getText(
+      "websiteName"
+    );
+
+  config.homepage.welcomeTitle =
+    getText(
+      "welcomeTitle"
+    );
+
+  config.homepage.welcomeDescription =
+    getText(
+      "welcomeDescription"
+    );
+
+  config.homepage.announcement =
+    getText(
+      "announcement"
+    );
+
+  config.homepage.featuredTitle =
+    getText(
+      "featuredTitle"
+    );
+
+  config.homepage.categoryTitle =
+    getText(
+      "categoryTitle"
+    );
+
+  config.homepage.telegramButtonText =
+    getText(
+      "telegramButtonText"
+    );
+
+  config.homepage.telegramLink =
+    getText(
+      "telegramLink"
+    );
+
+  config.homepage.footerText =
+    getText(
+      "footerText"
+    );
+
+
+  saveConfig();
+
+
+  showToast(
+    "Homepage settings saved."
+  );
+
+}
+
+
+/* =======================================================
+   GENERAL SETTINGS
+======================================================= */
+
+function loadGeneralSettings() {
+
+  const settings =
+    config.settings;
+
+
+  setValue(
+    "siteStatus",
+    settings.siteStatus
+  );
+
+  setValue(
+    "adminEmail",
+    settings.adminEmail
+  );
+
+  setValue(
+    "adminSessionTimeout",
+    settings.sessionTimeout
+  );
+
+}
+
+
+function saveGeneralSettings() {
+
+  config.settings.siteStatus =
+    getText(
+      "siteStatus"
+    ) || "online";
+
+
+  config.settings.adminEmail =
+    getText(
+      "adminEmail"
+    );
+
+
+  config.settings.sessionTimeout =
+    Math.max(
+      5,
+      getNumber(
+        "adminSessionTimeout",
+        30
+      )
+    );
+
+
+  saveConfig();
+
+
+  showToast(
+    "General settings saved."
+  );
+
+}
+
+
+/* =======================================================
+   CATEGORIES
+======================================================= */
+
+function loadCategories() {
+
+  try {
+
+    const saved =
+      localStorage.getItem(
+        STORAGE_KEYS.categories
+      );
+
+    return saved
+      ? JSON.parse(saved)
+      : [];
+
+  } catch {
+
+    return [];
+
+  }
+
+}
+
+
+function saveCategories(categories) {
+
+  localStorage.setItem(
+    STORAGE_KEYS.categories,
+    JSON.stringify(categories)
+  );
+
+}
+
+
+function renderCategories() {
+
+  const container =
+    getElement(
+      "categoryList"
+    );
+
+  if (!container) return;
+
+
+  const categories =
+    loadCategories();
+
+
+  if (!categories.length) {
+
+    container.innerHTML = `
+      <div class="empty-state">
+        <div>📂</div>
+        <strong>No Categories Yet</strong>
+        <p>Create your first video category.</p>
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+  container.innerHTML =
+    categories
+      .map((category, index) => {
+
+        const name =
+          escapeHtml(
+            category.name
+          );
+
+        return `
+          <div class="list-row">
+
+            <div>
+              <strong>${name}</strong>
+            </div>
+
+            <button
+              class="danger-btn"
+              type="button"
+              data-delete-category="${index}"
+            >
+              Delete
+            </button>
+
+          </div>
+        `;
+
+      })
+      .join("");
+
+
+  container
+    .querySelectorAll(
+      "[data-delete-category]"
+    )
+    .forEach(button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          const index =
+            Number(
+              button.dataset.deleteCategory
+            );
+
+          deleteCategory(index);
+
+        }
+      );
+
+    });
+
+}
+
+
+function deleteCategory(index) {
+
+  const categories =
+    loadCategories();
+
+
+  if (!categories[index]) return;
+
+
+  const confirmed =
+    window.confirm(
+      `Delete "${categories[index].name}"?`
+    );
+
+
+  if (!confirmed) return;
+
+
+  categories.splice(
+    index,
+    1
+  );
+
+
+  saveCategories(
+    categories
+  );
+
+
+  renderCategories();
+  populateCategorySelect();
+
+  showToast(
+    "Category deleted."
+  );
+
+}
+
+
+function openCategoryModal() {
+
+  const modal =
+    getElement(
+      "categoryModal"
+    );
+
+  if (modal) {
+
+    modal.classList.add(
+      "open"
+    );
+
+  }
+
+}
+
+
+function closeModal(id) {
+
+  const modal =
+    getElement(id);
+
+  if (modal) {
+
+    modal.classList.remove(
+      "open"
+    );
+
+  }
+
+}
+
+
+function setupCategoryForm() {
+
+  const form =
+    getElement(
+      "categoryForm"
+    );
+
+  if (!form) return;
+
+
+  form.addEventListener(
+    "submit",
+    event => {
 
       event.preventDefault();
 
+
+      const input =
+        getElement(
+          "categoryName"
+        );
+
+
       const name =
-        categoryName.value.trim();
+        input?.value.trim();
+
 
       if (!name) {
 
         showToast(
-          "Please enter a category name."
+          "Enter a category name.",
+          "error"
         );
 
         return;
+
       }
+
+
+      const categories =
+        loadCategories();
 
 
       const exists =
         categories.some(
           category =>
-            category.toLowerCase() ===
+            category.name
+              .toLowerCase() ===
             name.toLowerCase()
         );
 
@@ -228,965 +1268,996 @@ document.addEventListener("DOMContentLoaded", () => {
       if (exists) {
 
         showToast(
-          "This category already exists."
+          "This category already exists.",
+          "error"
         );
 
         return;
+
       }
 
 
-      categories.push(name);
+      categories.push({
 
-      categoryName.value = "";
+        id:
+          Date.now().toString(),
 
-      closeModal("categoryModal");
+        name
+
+      });
+
+
+      saveCategories(
+        categories
+      );
+
 
       renderCategories();
+      populateCategorySelect();
 
-      updateCategorySelects();
+      input.value = "";
+
+      closeModal(
+        "categoryModal"
+      );
+
 
       showToast(
-        "Category created successfully."
+        "Category created."
       );
 
-    });
-
-  }
-
-
-  function renderCategories() {
-
-    const container =
-      document.getElementById("categoryList");
-
-    if (!container) return;
-
-
-    if (categories.length === 0) {
-
-      container.innerHTML = `
-        <div class="empty-state">
-          <div>📂</div>
-          <strong>No categories yet</strong>
-          <p>Create your first category.</p>
-        </div>
-      `;
-
-      return;
     }
+  );
+
+}
 
 
-    container.innerHTML =
-      categories.map(
-        (category, index) => {
+function populateCategorySelect() {
 
-          const videoCount =
-            videos.filter(
-              video =>
-                video.category === category
-            ).length;
-
-
-          return `
-            <div class="category-item">
-
-              <strong>📂 ${escapeHTML(category)}</strong>
-
-              <small>
-                ${videoCount} video(s)
-              </small>
-
-              <div class="category-actions">
-
-                <button
-                  onclick="editCategory(${index})">
-                  ✏️ Edit
-                </button>
-
-                <button
-                  onclick="deleteCategory(${index})">
-                  🗑️ Delete
-                </button>
-
-              </div>
-
-            </div>
-          `;
-
-        }
-      ).join("");
-
-  }
-
-
-  window.editCategory = function(index) {
-
-    const oldName =
-      categories[index];
-
-    const newName =
-      prompt(
-        "Enter new category name:",
-        oldName
-      );
-
-
-    if (!newName) return;
-
-
-    const name =
-      newName.trim();
-
-
-    if (!name) return;
-
-
-    categories[index] = name;
-
-
-    videos.forEach(video => {
-
-      if (video.category === oldName) {
-        video.category = name;
-      }
-
-    });
-
-
-    renderCategories();
-
-    updateCategorySelects();
-
-    renderVideos();
-
-    showToast(
-      "Category updated."
+  const select =
+    getElement(
+      "videoCategory"
     );
 
-  };
+  if (!select) return;
 
 
-  window.deleteCategory = function(index) {
+  const categories =
+    loadCategories();
 
-    const name =
-      categories[index];
 
+  select.innerHTML =
+    `<option value="">Select category</option>`;
 
-    const used =
-      videos.some(
-        video =>
-          video.category === name
-      );
 
+  categories.forEach(
+    category => {
 
-    if (used) {
-
-      showToast(
-        "This category contains videos."
-      );
-
-      return;
-    }
-
-
-    const confirmDelete =
-      confirm(
-        `Delete "${name}" category?`
-      );
-
-
-    if (!confirmDelete) return;
-
-
-    categories.splice(index, 1);
-
-    renderCategories();
-
-    updateCategorySelects();
-
-    showToast(
-      "Category deleted."
-    );
-
-  };
-
-
-  /* =========================
-     VIDEO UPLOAD UI
-  ========================= */
-
-  const uploadModal =
-    document.getElementById("uploadModal");
-
-  const openUpload =
-    document.getElementById("openUpload");
-
-  const uploadForm =
-    document.getElementById("uploadForm");
-
-
-  if (openUpload) {
-
-    openUpload.addEventListener(
-      "click",
-      () => {
-
-        updateCategorySelects();
-
-        uploadModal.classList.add("show");
-
-      }
-    );
-
-  }
-
-
-  if (uploadForm) {
-
-    uploadForm.addEventListener(
-      "submit",
-      event => {
-
-        event.preventDefault();
-
-
-        const title =
-          document.getElementById(
-            "videoTitle"
-          ).value.trim();
-
-
-        const category =
-          document.getElementById(
-            "videoCategory"
-          ).value;
-
-
-        const videoFile =
-          document.getElementById(
-            "videoFile"
-          ).files[0];
-
-
-        const thumbnailFile =
-          document.getElementById(
-            "videoThumbnail"
-          ).files[0];
-
-
-        const publish =
-          document.getElementById(
-            "publishVideo"
-          ).checked;
-
-
-        if (!title) {
-
-          showToast(
-            "Enter video title."
-          );
-
-          return;
-        }
-
-
-        if (!videoFile) {
-
-          showToast(
-            "Select a video file."
-          );
-
-          return;
-        }
-
-
-        if (!category) {
-
-          showToast(
-            "Select a category."
-          );
-
-          return;
-        }
-
-
-        const newVideo = {
-
-          id:
-            Date.now(),
-
-          title,
-
-          category,
-
-          status:
-            publish
-              ? "published"
-              : "draft",
-
-          views: 0,
-
-          watchTime: 0,
-
-          thumbnail:
-            thumbnailFile
-              ? thumbnailFile.name
-              : "",
-
-          video:
-            videoFile.name,
-
-          createdAt:
-            new Date().toISOString()
-
-        };
-
-
-        videos.unshift(
-          newVideo
+      const option =
+        document.createElement(
+          "option"
         );
 
+      option.value =
+        category.id;
 
-        uploadForm.reset();
+      option.textContent =
+        category.name;
 
-        closeModal(
-          "uploadModal"
-        );
+      select.appendChild(
+        option
+      );
+
+    }
+  );
+
+}
 
 
-        renderVideos();
+/* =======================================================
+   VIDEOS
+======================================================= */
 
-        updateDashboard();
+function loadVideos() {
 
-        showToast(
-          "Video added successfully."
-        );
+  try {
 
-      }
-    );
+    const saved =
+      localStorage.getItem(
+        STORAGE_KEYS.videos
+      );
+
+    return saved
+      ? JSON.parse(saved)
+      : [];
+
+  } catch {
+
+    return [];
 
   }
 
-
-  /* =========================
-     VIDEO RENDER
-  ========================= */
-
-  function renderVideos() {
-
-    const container =
-      document.getElementById(
-        "videoTable"
-      );
+}
 
 
-    if (!container) return;
+function saveVideos(videos) {
+
+  localStorage.setItem(
+    STORAGE_KEYS.videos,
+    JSON.stringify(videos)
+  );
+
+}
 
 
-    if (videos.length === 0) {
+function renderVideos() {
 
-      container.innerHTML = `
-        <div class="empty-state">
-          <div>🎬</div>
-          <strong>No videos found</strong>
-          <p>Upload your first video.</p>
-        </div>
-      `;
+  const container =
+    getElement(
+      "videoTable"
+    );
 
-      return;
-    }
+  if (!container) return;
 
+
+  const videos =
+    loadVideos();
+
+
+  if (!videos.length) {
 
     container.innerHTML = `
-
-      <table class="table">
-
-        <thead>
-
-          <tr>
-
-            <th>Video</th>
-            <th>Category</th>
-            <th>Views</th>
-            <th>Status</th>
-            <th>Action</th>
-
-          </tr>
-
-        </thead>
-
-        <tbody>
-
-          ${videos.map(video => `
-
-            <tr>
-
-              <td>
-
-                <strong>
-                  ${escapeHTML(video.title)}
-                </strong>
-
-                <br>
-
-                <small>
-                  ${escapeHTML(video.video)}
-                </small>
-
-              </td>
-
-
-              <td>
-                ${escapeHTML(video.category)}
-              </td>
-
-
-              <td>
-                ${video.views}
-              </td>
-
-
-              <td>
-
-                <span class="status-badge">
-
-                  ${video.status}
-
-                </span>
-
-              </td>
-
-
-              <td>
-
-                <button
-                  class="small-btn"
-                  onclick="deleteVideo(${video.id})">
-
-                  🗑️ Delete
-
-                </button>
-
-              </td>
-
-            </tr>
-
-          `).join("")}
-
-        </tbody>
-
-      </table>
-
+      <div class="empty-state">
+        <div>🎬</div>
+        <strong>No Videos Yet</strong>
+        <p>Upload your first video.</p>
+      </div>
     `;
-
-  }
-
-
-  window.deleteVideo = function(id) {
-
-    const confirmDelete =
-      confirm(
-        "Delete this video?"
-      );
-
-
-    if (!confirmDelete) return;
-
-
-    videos =
-      videos.filter(
-        video =>
-          video.id !== id
-      );
-
-
-    renderVideos();
-
-    renderCategories();
 
     updateDashboard();
 
-    showToast(
-      "Video deleted."
-    );
+    return;
 
-  };
+  }
 
 
-  /* =========================
-     CATEGORY SELECTS
-  ========================= */
+  container.innerHTML =
+    videos
+      .map((video, index) => {
 
-  function updateCategorySelects() {
+        return `
+          <div class="list-row">
 
-    const selects = [
+            <div>
 
-      document.getElementById(
-        "videoCategory"
-      ),
+              <strong>
+                ${escapeHtml(video.title)}
+              </strong>
 
-      document.getElementById(
-        "videoCategoryFilter"
-      )
+              <small>
+                ${escapeHtml(video.categoryName || "Uncategorized")}
+              </small>
 
-    ];
+            </div>
 
+            <button
+              type="button"
+              class="danger-btn"
+              data-delete-video="${index}"
+            >
+              Delete
+            </button>
 
-    selects.forEach(select => {
-
-      if (!select) return;
-
-
-      const current =
-        select.value;
-
-
-      if (
-        select.id ===
-        "videoCategoryFilter"
-      ) {
-
-        select.innerHTML = `
-          <option value="all">
-            All Categories
-          </option>
+          </div>
         `;
 
-      } else {
-
-        select.innerHTML = `
-          <option value="">
-            Select category
-          </option>
-        `;
-
-      }
+      })
+      .join("");
 
 
-      categories.forEach(
-        category => {
+  container
+    .querySelectorAll(
+      "[data-delete-video]"
+    )
+    .forEach(button => {
 
-          const option =
-            document.createElement(
-              "option"
+      button.addEventListener(
+        "click",
+        () => {
+
+          const index =
+            Number(
+              button.dataset.deleteVideo
             );
 
-          option.value =
-            category;
-
-          option.textContent =
-            category;
-
-          select.appendChild(
-            option
-          );
+          deleteVideo(index);
 
         }
       );
 
-
-      if (current) {
-        select.value =
-          current;
-      }
-
     });
+
+
+  updateDashboard();
+
+}
+
+
+function deleteVideo(index) {
+
+  const videos =
+    loadVideos();
+
+
+  if (!videos[index]) return;
+
+
+  if (
+    !window.confirm(
+      "Delete this video?"
+    )
+  ) {
+
+    return;
 
   }
 
 
-  /* =========================
-     DASHBOARD
-  ========================= */
-
-  function updateDashboard() {
-
-    const totalVideos =
-      document.getElementById(
-        "totalVideos"
-      );
-
-    const totalViews =
-      document.getElementById(
-        "totalViews"
-      );
+  videos.splice(
+    index,
+    1
+  );
 
 
-    if (totalVideos) {
-
-      totalVideos.textContent =
-        videos.length;
-
-    }
+  saveVideos(
+    videos
+  );
 
 
-    if (totalViews) {
+  renderVideos();
 
-      const views =
-        videos.reduce(
-          (total, video) =>
-            total +
-            Number(video.views || 0),
-          0
+
+  showToast(
+    "Video deleted."
+  );
+
+}
+
+
+function openUploadModal() {
+
+  const modal =
+    getElement(
+      "uploadModal"
+    );
+
+  if (modal) {
+
+    modal.classList.add(
+      "open"
+    );
+
+  }
+
+}
+
+
+function setupUploadForm() {
+
+  const form =
+    getElement(
+      "uploadForm"
+    );
+
+  if (!form) return;
+
+
+  form.addEventListener(
+    "submit",
+    event => {
+
+      event.preventDefault();
+
+
+      const title =
+        getText(
+          "videoTitle"
         );
 
 
-      totalViews.textContent =
-        formatNumber(views);
+      const description =
+        getText(
+          "videoDescription"
+        );
+
+
+      const categorySelect =
+        getElement(
+          "videoCategory"
+        );
+
+
+      const file =
+        getElement(
+          "videoFile"
+        )?.files?.[0];
+
+
+      const thumbnail =
+        getElement(
+          "videoThumbnail"
+        )?.files?.[0];
+
+
+      if (!title) {
+
+        showToast(
+          "Video title is required.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      if (!file) {
+
+        showToast(
+          "Select a video file.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      const categoryId =
+        categorySelect?.value || "";
+
+
+      const category =
+        loadCategories()
+          .find(
+            item =>
+              item.id === categoryId
+          );
+
+
+      const videos =
+        loadVideos();
+
+
+      /*
+       * For this frontend demo we keep
+       * metadata only.
+       *
+       * Real video file storage should
+       * use a proper storage/backend.
+       */
+
+      videos.push({
+
+        id:
+          Date.now().toString(),
+
+        title,
+
+        description,
+
+        categoryId,
+
+        categoryName:
+          category?.name ||
+          "Uncategorized",
+
+        fileName:
+          file.name,
+
+        thumbnailName:
+          thumbnail
+            ? thumbnail.name
+            : "",
+
+        published:
+          Boolean(
+            getElement(
+              "publishVideo"
+            )?.checked
+          ),
+
+        views: 0,
+
+        createdAt:
+          new Date()
+            .toISOString()
+
+      });
+
+
+      saveVideos(
+        videos
+      );
+
+
+      form.reset();
+
+
+      closeModal(
+        "uploadModal"
+      );
+
+
+      renderVideos();
+
+
+      showToast(
+        "Video added successfully."
+      );
 
     }
+  );
+
+}
 
 
-    const totalUsers =
-      document.getElementById(
+/* =======================================================
+   DASHBOARD
+======================================================= */
+
+function updateDashboard() {
+
+  const videos =
+    loadVideos();
+
+
+  setTextContent(
+    "totalVideos",
+    videos.length
+  );
+
+
+  const totalViews =
+    videos.reduce(
+      (sum, video) =>
+        sum +
+        Number(
+          video.views || 0
+        ),
+      0
+    );
+
+
+  setTextContent(
+    "totalViews",
+    totalViews
+  );
+
+
+  const totalUsers =
+    Number(
+      localStorage.getItem(
         "totalUsers"
-      );
+      ) || 0
+    );
 
 
-    const activeUsers =
-      document.getElementById(
+  setTextContent(
+    "totalUsers",
+    totalUsers
+  );
+
+
+  setTextContent(
+    "registeredUsers",
+    totalUsers
+  );
+
+
+  setTextContent(
+    "activeUsers",
+    Number(
+      localStorage.getItem(
         "activeUsers"
-      );
+      ) || 0
+    )
+  );
 
 
-    if (totalUsers) {
-
-      totalUsers.textContent =
-        users.length;
-
-    }
-
-
-    if (activeUsers) {
-
-      activeUsers.textContent =
-        users.filter(
-          user =>
-            user.active
-        ).length;
-
-    }
+  setTextContent(
+    "onlineUsers",
+    Number(
+      localStorage.getItem(
+        "activeUsers"
+      ) || 0
+    )
+  );
 
 
-    const registeredUsers =
-      document.getElementById(
-        "registeredUsers"
-      );
+  renderTrendingVideos(
+    videos
+  );
+
+}
 
 
-    const onlineUsers =
-      document.getElementById(
-        "onlineUsers"
-      );
+function setTextContent(id, value) {
+
+  const element =
+    getElement(id);
+
+  if (element) {
+
+    element.textContent =
+      String(value);
+
+  }
+
+}
 
 
-    if (registeredUsers) {
+function renderTrendingVideos(videos) {
 
-      registeredUsers.textContent =
-        users.length;
+  const container =
+    getElement(
+      "trendingList"
+    );
 
-    }
-
-
-    if (onlineUsers) {
-
-      onlineUsers.textContent =
-        users.filter(
-          user =>
-            user.active
-        ).length;
-
-    }
+  if (!container) return;
 
 
-    renderTrending();
+  const sorted =
+    [...videos]
+      .sort(
+        (a, b) =>
+          Number(b.views || 0) -
+          Number(a.views || 0)
+      )
+      .slice(0, 5);
+
+
+  if (!sorted.length) {
+
+    container.innerHTML = `
+      <div class="empty-state">
+        <div>🎬</div>
+        <strong>No videos yet</strong>
+      </div>
+    `;
+
+    return;
 
   }
 
 
-  function renderTrending() {
+  container.innerHTML =
+    sorted
+      .map(video => {
 
-    const container =
-      document.getElementById(
-        "trendingList"
-      );
+        return `
+          <div class="list-row">
 
-
-    if (!container) return;
-
-
-    const trending =
-      [...videos]
-        .sort(
-          (a,b) =>
-            b.views -
-            a.views
-        )
-        .slice(0,5);
-
-
-    if (trending.length === 0) {
-
-      container.innerHTML = `
-        <div class="empty-state">
-          <div>🎬</div>
-          <strong>No videos yet</strong>
-          <p>Upload videos to see analytics.</p>
-        </div>
-      `;
-
-      return;
-    }
-
-
-    container.innerHTML =
-      trending.map(
-        video => `
-
-          <div class="live-user">
-
-            <div class="avatar">
-              🎬
-            </div>
-
-            <div class="live-user-info">
+            <div>
 
               <strong>
-                ${escapeHTML(video.title)}
+                ${escapeHtml(video.title)}
               </strong>
 
               <small>
-                👁 ${video.views} views
+                ${Number(video.views || 0)} views
               </small>
 
             </div>
 
           </div>
+        `;
 
-        `
-      ).join("");
+      })
+      .join("");
 
-  }
+}
 
 
-  /* =========================
-     NOTIFICATIONS
-  ========================= */
+/* =======================================================
+   NOTIFICATIONS
+======================================================= */
 
-  const sendNotification =
-    document.getElementById(
+function setupNotifications() {
+
+  const button =
+    getElement(
       "sendNotification"
     );
 
-
-  if (sendNotification) {
-
-    sendNotification.addEventListener(
-      "click",
-      () => {
-
-        const title =
-          document.getElementById(
-            "notificationTitle"
-          ).value.trim();
+  if (!button) return;
 
 
-        const message =
-          document.getElementById(
-            "notificationMessage"
-          ).value.trim();
+  button.addEventListener(
+    "click",
+    () => {
 
-
-        if (!title || !message) {
-
-          showToast(
-            "Enter title and message."
-          );
-
-          return;
-        }
-
-
-        /*
-          BACKEND CONNECTION WILL SEND
-          THE REAL TELEGRAM MESSAGE.
-        */
-
-        showToast(
-          "Notification prepared. Telegram backend will send it after connection."
+      const title =
+        getText(
+          "notificationTitle"
         );
 
+
+      const message =
+        getText(
+          "notificationMessage"
+        );
+
+
+      if (!title || !message) {
+
+        showToast(
+          "Enter both title and message.",
+          "error"
+        );
+
+        return;
+
       }
+
+
+      let notifications = [];
+
+
+      try {
+
+        notifications =
+          JSON.parse(
+            localStorage.getItem(
+              STORAGE_KEYS.notifications
+            ) || "[]"
+          );
+
+      } catch {
+
+        notifications = [];
+
+      }
+
+
+      notifications.push({
+
+        id:
+          Date.now().toString(),
+
+        title,
+
+        message,
+
+        createdAt:
+          new Date()
+            .toISOString()
+
+      });
+
+
+      localStorage.setItem(
+        STORAGE_KEYS.notifications,
+        JSON.stringify(
+          notifications
+        )
+      );
+
+
+      setValue(
+        "notificationTitle",
+        ""
+      );
+
+      setValue(
+        "notificationMessage",
+        ""
+      );
+
+
+      showToast(
+        "Notification saved."
+      );
+
+    }
+  );
+
+}
+
+
+/* =======================================================
+   MODALS
+======================================================= */
+
+function setupModals() {
+
+  document
+    .querySelectorAll(
+      "[data-close]"
+    )
+    .forEach(button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          closeModal(
+            button.dataset.close
+          );
+
+        }
+      );
+
+    });
+
+
+  document
+    .querySelectorAll(".modal")
+    .forEach(modal => {
+
+      modal.addEventListener(
+        "click",
+        event => {
+
+          if (
+            event.target === modal
+          ) {
+
+            modal.classList.remove(
+              "open"
+            );
+
+          }
+
+        }
+      );
+
+    });
+
+}
+
+
+/* =======================================================
+   LOGOUT
+======================================================= */
+
+function setupLogout() {
+
+  const button =
+    getElement(
+      "logoutBtn"
+    );
+
+  if (!button) return;
+
+
+  button.addEventListener(
+    "click",
+    () => {
+
+      /*
+       * Actual authentication logout
+       * must be handled by the backend/auth
+       * provider.
+       */
+
+      sessionStorage.removeItem(
+        "adminSession"
+      );
+
+
+      showToast(
+        "Admin session ended."
+      );
+
+
+      setTimeout(
+        () => {
+
+          /*
+           * Do not automatically redirect
+           * to a hard-coded login URL.
+           */
+
+          window.location.reload();
+
+        },
+        700
+      );
+
+    }
+  );
+
+}
+
+
+/* =======================================================
+   ESCAPE HTML
+======================================================= */
+
+function escapeHtml(value) {
+
+  return String(value ?? "")
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+
+}
+
+
+/* =======================================================
+   BUTTON EVENTS
+======================================================= */
+
+function setupButtons() {
+
+  const upload =
+    getElement(
+      "openUpload"
+    );
+
+  if (upload) {
+
+    upload.addEventListener(
+      "click",
+      openUploadModal
     );
 
   }
 
 
-  /* =========================
-     SETTINGS
-  ========================= */
-
-  const saveSettings =
-    document.getElementById(
-      "saveSettings"
+  const category =
+    getElement(
+      "addCategoryBtn"
     );
 
+  if (category) {
+
+    category.addEventListener(
+      "click",
+      openCategoryModal
+    );
+
+  }
+
+
+  const saveCoins =
+    getElement(
+      "saveCoinSettings"
+    );
+
+  if (saveCoins) {
+
+    saveCoins.addEventListener(
+      "click",
+      saveCoinSettings
+    );
+
+  }
+
+
+  const saveAds =
+    getElement(
+      "saveAdSettings"
+    );
+
+  if (saveAds) {
+
+    saveAds.addEventListener(
+      "click",
+      saveAdSettings
+    );
+
+  }
+
+
+  const saveHome =
+    getElement(
+      "saveHomepageSettings"
+    );
+
+  if (saveHome) {
+
+    saveHome.addEventListener(
+      "click",
+      saveHomepageSettings
+    );
+
+  }
+
+
+  const saveSettings =
+    getElement(
+      "saveSettings"
+    );
 
   if (saveSettings) {
 
     saveSettings.addEventListener(
       "click",
-      () => {
-
-        showToast(
-          "Settings saved locally. Backend connection comes next."
-        );
-
-      }
+      saveGeneralSettings
     );
 
   }
 
-
-  /* =========================
-     LOGOUT
-  ========================= */
-
-  const logoutBtn =
-    document.getElementById(
-      "logoutBtn"
-    );
+}
 
 
-  if (logoutBtn) {
+/* =======================================================
+   INITIALIZE
+======================================================= */
 
-    logoutBtn.addEventListener(
-      "click",
-      () => {
+function initializeAdminPanel() {
 
-        const answer =
-          confirm(
-            "Do you want to logout?"
-          );
+  setupNavigation();
 
+  setupMobileMenu();
 
-        if (!answer) return;
+  setupButtons();
 
+  setupModals();
 
-        showToast(
-          "Admin logout will be connected to secure authentication."
-        );
+  setupCategoryForm();
 
-      }
-    );
+  setupUploadForm();
 
-  }
+  setupNotifications();
+
+  setupLogout();
 
 
-  /* =========================
-     NOTIFICATION BUTTON
-  ========================= */
+  loadCoinSettings();
 
-  const notificationButton =
-    document.getElementById(
-      "notificationButton"
-    );
+  loadAdSettings();
 
+  loadHomepageSettings();
 
-  if (notificationButton) {
+  loadGeneralSettings();
 
-    notificationButton.addEventListener(
-      "click",
-      () => {
-
-        openPage(
-          "notifications"
-        );
-
-      }
-    );
-
-  }
-
-
-  /* =========================
-     CLOSE MODALS
-  ========================= */
-
-  document.querySelectorAll(
-    ".modal"
-  ).forEach(modal => {
-
-    modal.addEventListener(
-      "click",
-      event => {
-
-        if (
-          event.target ===
-          modal
-        ) {
-
-          modal.classList.remove(
-            "show"
-          );
-
-        }
-
-      }
-    );
-
-  });
-
-
-  /* =========================
-     HELPERS
-  ========================= */
-
-  function escapeHTML(value) {
-
-    return String(value)
-      .replace(
-        /&/g,
-        "&amp;"
-      )
-      .replace(
-        /</g,
-        "&lt;"
-      )
-      .replace(
-        />/g,
-        "&gt;"
-      )
-      .replace(
-        /"/g,
-        "&quot;"
-      )
-      .replace(
-        /'/g,
-        "&#039;"
-      );
-
-  }
-
-
-  function formatNumber(number) {
-
-    return Number(number)
-      .toLocaleString();
-
-  }
-
-
-  /* =========================
-     INITIALIZE
-  ========================= */
 
   renderCategories();
 
-  updateCategorySelects();
+  populateCategorySelect();
 
   renderVideos();
 
   updateDashboard();
 
-});
+}
+
+
+/* =======================================================
+   START
+======================================================= */
+
+if (
+  document.readyState === "loading"
+) {
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    initializeAdminPanel
+  );
+
+} else {
+
+  initializeAdminPanel();
+
+}
