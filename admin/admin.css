@@ -9,6 +9,15 @@
   <title>Admin Panel</title>
 
   <link rel="stylesheet" href="admin.css">
+
+  <!-- SUPABASE CONNECTION: publishable key is safe for browser use.
+       Do NOT put a service_role/secret key here. -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    window.SUPABASE_URL = "https://ounhudbdznqgfwmvpczk.supabase.co";
+    window.SUPABASE_PUBLISHABLE_KEY = "sb_publishable_2xAQFQ3_oNhVEdard3MJtA_YoRX5Ish";
+    window.SUPABASE_TABLE = "site_settings";
+  </script>
 </head>
 
 <body>
@@ -1467,137 +1476,3 @@
 
 </body>
 </html>
-
-
-/* =========================================================
-   REPORTS / ANALYTICS
-========================================================= */
-
-.report-stats-grid {
-  margin-bottom: 24px;
-}
-
-.report-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.report-table th,
-.report-table td {
-  padding: 13px 15px;
-  text-align: left;
-  border-bottom: 1px solid var(--border);
-}
-
-.report-table th {
-  color: var(--muted);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.table-wrap {
-  width: 100%;
-  overflow-x: auto;
-}
-
-
-/* =========================================================
-   DATABASE / PUBLISH STATUS
-========================================================= */
-
-.connection-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 34px;
-  padding: 7px 11px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.025);
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.connection-status::before {
-  content: "";
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #64748b;
-  box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.12);
-}
-
-.connection-status.connected {
-  color: #86efac;
-  border-color: rgba(34, 197, 94, 0.22);
-  background: rgba(34, 197, 94, 0.06);
-}
-
-.connection-status.connected::before {
-  background: var(--success);
-  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.12);
-}
-
-.connection-status.error {
-  color: #fca5a5;
-  border-color: rgba(239, 68, 68, 0.22);
-  background: rgba(239, 68, 68, 0.06);
-}
-
-.connection-status.error::before {
-  background: var(--danger);
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
-}
-
-
-/* =========================================================
-   PUBLISH ACTIONS
-========================================================= */
-
-.publish-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
-  margin-top: 18px;
-}
-
-.publish-status {
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.publish-status.success {
-  color: var(--success);
-}
-
-.publish-status.error {
-  color: var(--danger);
-}
-
-
-/* =========================================================
-   MOBILE REPORT TABLE
-========================================================= */
-
-@media (max-width: 800px) {
-  .report-table {
-    min-width: 620px;
-  }
-
-  .connection-status {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .publish-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .publish-actions .btn {
-    width: 100%;
-  }
-}
