@@ -1,57 +1,2571 @@
-<!-- =========================================================
-     SUPABASE CONNECTION
-========================================================= -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <meta name="robots" content="noindex,nofollow">
 
-<script>
-  window.SUPABASE_URL =
-    "https://ounhudbdznqgfwmvpczk.supabase.co";
+  <title>Admin Panel</title>
 
-  window.SUPABASE_PUBLISHABLE_KEY =
-    "sb_publishable_2xAQFQ3_oNhVEdard3MJtA_YoRX5Ish";
+  <link rel="stylesheet" href="admin.css">
 
-  window.SUPABASE_TABLE = "site_settings";
+  <!-- =====================================================
+       SUPABASE
+       এখানে আর কিছু পরিবর্তন করার দরকার নেই
+  ====================================================== -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  window.ADMIN_SUPABASE = {
-    client: null,
-    url: window.SUPABASE_URL,
-    publishableKey: window.SUPABASE_PUBLISHABLE_KEY
-  };
+  <script>
+    /*
+      ======================================================
+      SUPABASE CONNECTION
+      ======================================================
 
-  function initSupabase() {
-    if (
-      window.supabase &&
-      typeof window.supabase.createClient === "function" &&
-      window.SUPABASE_URL &&
-      window.SUPABASE_PUBLISHABLE_KEY
-    ) {
-      try {
-        window.ADMIN_SUPABASE.client =
-          window.supabase.createClient(
-            window.SUPABASE_URL,
-            window.SUPABASE_PUBLISHABLE_KEY
+      Project URL:
+      তোমার দেওয়া Supabase URL
+
+      Publishable Key:
+      তোমার দেওয়া Publishable Key
+
+      ⚠️ এখানে কখনো SUPABASE SERVICE_ROLE / SECRET KEY দেবে না।
+    */
+
+    const SUPABASE_URL =
+      "https://ounhudbdznqgfwmvpczk.supabase.co";
+
+    const SUPABASE_PUBLISHABLE_KEY =
+      "sb_publishable_2xAQFQ3_oNhVEdard3MJtA_YoRX5Ish";
+
+    const supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+      );
+
+    window.supabaseClient = supabaseClient;
+
+    console.log("Supabase connection initialized.");
+  </script>
+</head>
+
+<body>
+
+  <!-- =========================
+       MOBILE HEADER
+  ========================== -->
+  <header class="mobile-header">
+
+    <button id="mobileMenu" class="icon-btn" type="button">
+      ☰
+    </button>
+
+    <h2>Admin Panel</h2>
+
+    <button id="notificationButton" class="icon-btn" type="button">
+      🔔
+    </button>
+
+  </header>
+
+
+  <!-- =========================
+       SIDEBAR
+  ========================== -->
+  <aside class="sidebar">
+
+    <div class="brand">
+
+      <div class="brand-icon">⚡</div>
+
+      <div>
+        <strong>ADMIN</strong>
+        <small>CONTROL PANEL</small>
+      </div>
+
+    </div>
+
+    <nav>
+
+      <button class="menu-item active" data-page="dashboard" type="button">
+        📊 <span>Dashboard</span>
+      </button>
+
+      <button class="menu-item" data-page="videos" type="button">
+        🎬 <span>Videos</span>
+      </button>
+
+      <button class="menu-item" data-page="categories" type="button">
+        📂 <span>Categories</span>
+      </button>
+
+      <button class="menu-item" data-page="users" type="button">
+        👥 <span>Users</span>
+      </button>
+
+      <button class="menu-item" data-page="coins" type="button">
+        🪙 <span>Coins & Referral</span>
+      </button>
+
+      <button class="menu-item" data-page="ads" type="button">
+        📢 <span>Ads Management</span>
+      </button>
+
+      <button class="menu-item" data-page="homepage" type="button">
+        🏠 <span>Homepage Content</span>
+      </button>
+
+      <button class="menu-item" data-page="notifications" type="button">
+        🔔 <span>Notifications</span>
+      </button>
+
+      <button class="menu-item" data-page="subscriptions" type="button">
+        💎 <span>Subscriptions</span>
+      </button>
+
+      <button class="menu-item" data-page="settings" type="button">
+        ⚙️ <span>Settings</span>
+      </button>
+
+    </nav>
+
+    <button id="logoutBtn" class="logout-btn" type="button">
+      🚪 Logout
+    </button>
+
+  </aside>
+
+
+  <!-- =========================
+       MAIN CONTENT
+  ========================== -->
+  <main class="main-content">
+
+
+    <!-- =========================
+         DASHBOARD
+    ========================== -->
+    <section id="dashboard" class="page active-page">
+
+      <div class="page-header">
+
+        <div>
+          <span class="eyebrow">CONTROL CENTER</span>
+          <h1>Dashboard</h1>
+          <p>Manage your website from one place.</p>
+        </div>
+
+      </div>
+
+
+      <div class="stats-grid">
+
+        <div class="stat-card">
+          <span>🎬</span>
+          <small>Total Videos</small>
+          <strong id="totalVideos">0</strong>
+        </div>
+
+        <div class="stat-card">
+          <span>👁️</span>
+          <small>Total Views</small>
+          <strong id="totalViews">0</strong>
+        </div>
+
+        <div class="stat-card">
+          <span>👥</span>
+          <small>Total Users</small>
+          <strong id="totalUsers">0</strong>
+        </div>
+
+        <div class="stat-card">
+          <span>🟢</span>
+          <small>Active Users</small>
+          <strong id="activeUsers">0</strong>
+        </div>
+
+      </div>
+
+
+      <div class="content-grid">
+
+        <div class="panel">
+
+          <div class="panel-header">
+
+            <div>
+              <h2>Trending Videos</h2>
+              <p>Most viewed videos.</p>
+            </div>
+
+          </div>
+
+          <div id="trendingList"></div>
+
+        </div>
+
+
+        <div class="panel">
+
+          <div class="panel-header">
+
+            <div>
+              <h2>Quick Actions</h2>
+              <p>Manage your website quickly.</p>
+            </div>
+
+          </div>
+
+          <div class="quick-actions">
+
+            <button data-page-target="videos" type="button">
+              🎬 Manage Videos
+            </button>
+
+            <button data-page-target="categories" type="button">
+              📂 Categories
+            </button>
+
+            <button data-page-target="ads" type="button">
+              📢 Manage Ads
+            </button>
+
+            <button data-page-target="coins" type="button">
+              🪙 Coin Settings
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         VIDEOS
+    ========================== -->
+    <section id="videos" class="page">
+
+      <div class="page-header">
+
+        <div>
+          <span class="eyebrow">CONTENT</span>
+          <h1>Videos</h1>
+          <p>Upload and manage your videos.</p>
+        </div>
+
+        <button id="openUpload" class="primary-btn" type="button">
+          ＋ Upload Video
+        </button>
+
+      </div>
+
+
+      <div class="panel">
+        <div id="videoTable"></div>
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         CATEGORIES
+    ========================== -->
+    <section id="categories" class="page">
+
+      <div class="page-header">
+
+        <div>
+          <span class="eyebrow">CONTENT</span>
+          <h1>Categories</h1>
+          <p>Create, edit and delete video categories.</p>
+        </div>
+
+        <button id="addCategoryBtn" class="primary-btn" type="button">
+          ＋ Add Category
+        </button>
+
+      </div>
+
+
+      <div class="panel">
+        <div id="categoryList"></div>
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         USERS
+    ========================== -->
+    <section id="users" class="page">
+
+      <div class="page-header">
+
+        <div>
+          <span class="eyebrow">USERS</span>
+          <h1>User Management</h1>
+          <p>Manage registered and active users.</p>
+        </div>
+
+      </div>
+
+
+      <div class="stats-grid">
+
+        <div class="stat-card">
+          <span>👥</span>
+          <small>Registered Users</small>
+          <strong id="registeredUsers">0</strong>
+        </div>
+
+        <div class="stat-card">
+          <span>🟢</span>
+          <small>Online Users</small>
+          <strong id="onlineUsers">0</strong>
+        </div>
+
+      </div>
+
+
+      <div class="panel">
+
+        <div id="userTable">
+
+          <div class="empty-state">
+            <div>👥</div>
+            <strong>User Management</strong>
+            <p>User data will appear here after backend connection.</p>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         COINS
+    ========================== -->
+    <section id="coins" class="page">
+
+      <div class="page-header">
+
+        <div>
+          <span class="eyebrow">REWARDS</span>
+          <h1>Coins & Referral</h1>
+          <p>
+            Manage ad rewards, daily rewards,
+            referrals and video claims.
+          </p>
+        </div>
+
+      </div>
+
+
+      <!-- WATCH AD REWARD -->
+      <div class="panel">
+
+        <div class="panel-header">
+
+          <div>
+            <h2>👁️ Watch Ad → Earn Coins</h2>
+            <p>
+              Users receive coins after an eligible ad view.
+            </p>
+          </div>
+
+          <label class="switch">
+
+            <input
+              type="checkbox"
+              id="watchAdRewardEnabled"
+              checked
+            >
+
+            <span></span>
+
+          </label>
+
+        </div>
+
+
+        <div class="form-grid">
+
+          <div class="form-group">
+
+            <label for="adRewardCoins">
+              Coins Per Ad
+            </label>
+
+            <input
+              id="adRewardCoins"
+              type="number"
+              min="1"
+              value="25"
+            >
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="dailyAdLimit">
+              Maximum Rewarded Ads / Day
+            </label>
+
+            <input
+              id="dailyAdLimit"
+              type="number"
+              min="1"
+              value="20"
+            >
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- VIDEO CLAIM -->
+      <div class="panel">
+
+        <div class="panel-header">
+
+          <div>
+            <h2>🎬 Video Claim</h2>
+            <p>Coins required to claim a video reward.</p>
+          </div>
+
+        </div>
+
+
+        <div class="form-grid">
+
+          <div class="form-group">
+
+            <label for="videoClaimCost">
+              Video Claim Cost
+            </label>
+
+            <input
+              id="videoClaimCost"
+              type="number"
+              min="0"
+              value="50"
+            >
+
+          </div>
+
+        </div>
+
+        <div class="info-box">
+
+          💡 Current rule:
+          <strong>50 coins</strong>
+          are required for one Video Claim.
+
+        </div>
+
+      </div>
+
+
+      <!-- DAILY CLAIM -->
+      <div class="panel">
+
+        <div class="panel-header">
+
+          <div>
+            <h2>🎁 7-Day Daily Claim</h2>
+            <p>Fixed seven-day reward cycle.</p>
+          </div>
+
+          <label class="switch">
+
+            <input
+              type="checkbox"
+              id="dailyRewardEnabled"
+              checked
+            >
+
+            <span></span>
+
+          </label>
+
+        </div>
+
+
+        <div class="reward-grid">
+
+          <div class="reward-card">
+            <span>DAY 1</span>
+            <strong>25 🪙</strong>
+          </div>
+
+          <div class="reward-card">
+            <span>DAY 2</span>
+            <strong>50 🪙</strong>
+          </div>
+
+          <div class="reward-card">
+            <span>DAY 3</span>
+            <strong>75 🪙</strong>
+          </div>
+
+          <div class="reward-card">
+            <span>DAY 4</span>
+            <strong>100 🪙</strong>
+          </div>
+
+          <div class="reward-card">
+            <span>DAY 5</span>
+            <strong>125 🪙</strong>
+          </div>
+
+          <div class="reward-card">
+            <span>DAY 6</span>
+            <strong>150 🪙</strong>
+          </div>
+
+          <div class="reward-card reward-special">
+            <span>DAY 7</span>
+            <strong>600 🪙</strong>
+          </div>
+
+        </div>
+
+
+        <div class="reward-total">
+
+          <span>7-Day Total</span>
+
+          <strong>1,125 🪙</strong>
+
+        </div>
+
+      </div>
+
+
+      <!-- DAILY CLAIM AD -->
+      <div class="panel">
+
+        <div class="panel-header">
+
+          <div>
+            <h2>🔗 Daily Claim Ad</h2>
+            <p>
+              Show one Direct-Link ad before a daily claim.
+            </p>
+          </div>
+
+          <label class="switch">
+
+            <input
+              type="checkbox"
+              id="dailyClaimAdEnabled"
+              checked
+            >
+
+            <span></span>
+
+          </label>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="dailyClaimAdUrl">
+            Direct-Link Ad URL
+          </label>
+
+          <input
+            id="dailyClaimAdUrl"
+            type="url"
+            placeholder="Paste your approved Direct-Link ad URL"
+          >
+
+        </div>
+
+      </div>
+
+
+      <!-- REFERRAL -->
+      <div class="panel">
+
+        <div class="panel-header">
+
+          <div>
+            <h2>🤝 Referral Reward</h2>
+            <p>
+              Reward eligible successful referrals.
+            </p>
+          </div>
+
+          <label class="switch">
+
+            <input
+              type="checkbox"
+              id="referralEnabled"
+              checked
+            >
+
+            <span></span>
+
+          </label>
+
+        </div>
+
+
+        <div class="form-grid">
+
+          <div class="form-group">
+
+            <label for="referrerReward">
+              Referrer Reward
+            </label>
+
+            <input
+              id="referrerReward"
+              type="number"
+              min="0"
+              value="100"
+            >
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="newUserBonus">
+              New User Bonus
+            </label>
+
+            <input
+              id="newUserBonus"
+              type="number"
+              min="0"
+              value="50"
+            >
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <button
+        id="saveCoinSettings"
+        class="primary-btn"
+        type="button"
+      >
+        💾 Save Coin Settings
+      </button>
+
+    </section>
+
+
+    <!-- =========================
+         ADS MANAGEMENT
+    ========================== -->
+    <section id="ads" class="page">
+
+      <div class="page-header">
+
+        <div>
+          <span class="eyebrow">MONETIZATION</span>
+          <h1>Ads Management</h1>
+          <p>
+            Manage approved ad-network links and code.
+          </p>
+        </div>
+
+      </div>
+
+
+      <!-- BANNER -->
+      <div class="panel">
+
+        <div class="panel-header">
+
+          <div>
+            <h2>📢 Banner Ad</h2>
+            <p>Banner advertisement configuration.</p>
+          </div>
+
+          <label class="switch">
+
+            <input
+              type="checkbox"
+              id="bannerAdEnabled"
+            >
+
+            <span></span>
+
+          </label>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="bannerAdCode">
+            Banner Ad Code / Link
+          </label>
+
+          <textarea
+            id="bannerAdCode"
+            rows="5"
+            placeholder="Paste approved banner code or ad link..."
+          ></textarea>
+
+        </div>
+
+      </div>
+
+
+      <!-- DIRECT LINK -->
+      <div class="panel">
+
+        <div class="panel-header">
+
+          <div>
+            <h2>🔗 Direct Link Ad</h2>
+            <p>Direct-link advertisement URL.</p>
+          </div>
+
+          <label class="switch">
+
+            <input
+              type="checkbox"
+              id="directLinkEnabled"
+            >
+
+            <span></span>
+
+          </label>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="directLinkUrl">
+            Direct Link URL
+          </label>
+
+          <input
+            id="directLinkUrl"
+            type="url"
+            placeholder="Paste approved Direct-Link URL..."
+          >
+
+        </div>
+
+      </div>
+
+
+      <!-- POPUNDER -->
+      <div class="panel">
+
+        <div class="panel-header">
+
+          <div>
+            <h2>🪟 Popunder</h2>
+            <p>Approved popunder ad configuration.</p>
+          </div>
+
+          <label class="switch">
+
+            <input
+              type="checkbox"
+              id="popunderEnabled"
+            >
+
+            <span></span>
+
+          </label>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="popunderCode">
+            Popunder Code / Link
+          </label>
+
+          <textarea
+            id="popunderCode"
+            rows="5"
+            placeholder="Paste approved popunder code or link..."
+          ></textarea>
+
+        </div>
+
+      </div>
+
+
+      <!-- SOCIAL BAR -->
+      <div class="panel">
+
+        <div class="panel-header">
+
+          <div>
+            <h2>📱 Social Bar</h2>
+            <p>
+              Social-bar advertisement configuration.
+            </p>
+          </div>
+
+          <label class="switch">
+
+            <input
+              type="checkbox"
+              id="socialBarEnabled"
+            >
+
+            <span></span>
+
+          </label>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="socialBarCode">
+            Social Bar Code
+          </label>
+
+          <textarea
+            id="socialBarCode"
+            rows="5"
+            placeholder="Paste approved social-bar code..."
+          ></textarea>
+
+        </div>
+
+      </div>
+
+
+      <!-- VIDEO AD -->
+      <div class="panel">
+
+        <div class="panel-header">
+
+          <div>
+            <h2>🎬 Video Ad</h2>
+            <p>
+              Configure when the video advertisement
+              should appear.
+            </p>
+          </div>
+
+          <label class="switch">
+
+            <input
+              type="checkbox"
+              id="videoAdEnabled"
+            >
+
+            <span></span>
+
+          </label>
+
+        </div>
+
+
+        <div class="form-grid">
+
+          <div class="form-group">
+
+            <label for="videoAdCode">
+              Video Ad Code / Link
+            </label>
+
+            <textarea
+              id="videoAdCode"
+              rows="5"
+              placeholder="Paste approved video ad code or link..."
+            ></textarea>
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="videoAdDelay">
+              Show Ad After
+            </label>
+
+            <select id="videoAdDelay">
+
+              <option value="10">
+                10 Seconds
+              </option>
+
+              <option value="20">
+                20 Seconds
+              </option>
+
+              <option value="30" selected>
+                30 Seconds
+              </option>
+
+              <option value="60">
+                60 Seconds
+              </option>
+
+              <option value="90">
+                90 Seconds
+              </option>
+
+              <option value="120">
+                120 Seconds
+              </option>
+
+            </select>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- INTERSTITIAL -->
+      <div class="panel">
+
+        <div class="panel-header">
+
+          <div>
+            <h2>📺 Interstitial Ad</h2>
+            <p>
+              Advertisement displayed between
+              supported page actions.
+            </p>
+          </div>
+
+          <label class="switch">
+
+            <input
+              type="checkbox"
+              id="interstitialEnabled"
+            >
+
+            <span></span>
+
+          </label>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="interstitialCode">
+            Interstitial Code / Link
+          </label>
+
+          <textarea
+            id="interstitialCode"
+            rows="5"
+            placeholder="Paste approved interstitial code or link..."
+          ></textarea>
+
+        </div>
+
+      </div>
+
+
+      <!-- CUSTOM -->
+      <div class="panel">
+
+        <div class="panel-header">
+
+          <div>
+            <h2>🧩 Custom Ad</h2>
+            <p>
+              Custom approved advertisement configuration.
+            </p>
+          </div>
+
+          <label class="switch">
+
+            <input
+              type="checkbox"
+              id="customAdEnabled"
+            >
+
+            <span></span>
+
+          </label>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="customAdCode">
+            Custom Ad Code
+          </label>
+
+          <textarea
+            id="customAdCode"
+            rows="7"
+            placeholder="Paste approved custom ad code..."
+          ></textarea>
+
+        </div>
+
+      </div>
+
+
+      <button
+        id="saveAdSettings"
+        class="primary-btn"
+        type="button"
+      >
+        💾 Save Ad Settings
+      </button>
+
+    </section>
+
+
+    <!-- =========================
+         HOMEPAGE CONTENT
+    ========================== -->
+    <section id="homepage" class="page">
+
+      <div class="page-header">
+
+        <div>
+          <span class="eyebrow">WEBSITE CONTENT</span>
+          <h1>Homepage Content</h1>
+          <p>
+            Write and manage homepage text manually.
+          </p>
+        </div>
+
+      </div>
+
+
+      <div class="panel">
+
+        <div class="form-grid">
+
+          <div class="form-group">
+
+            <label for="websiteName">
+              Website Name
+            </label>
+
+            <input
+              id="websiteName"
+              type="text"
+              placeholder="Your Website Name"
+            >
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="welcomeTitle">
+              Welcome Title
+            </label>
+
+            <input
+              id="welcomeTitle"
+              type="text"
+              placeholder="Welcome to our website"
+            >
+
+          </div>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="welcomeDescription">
+            Welcome Description
+          </label>
+
+          <textarea
+            id="welcomeDescription"
+            rows="5"
+            placeholder="Write your welcome message..."
+          ></textarea>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="announcement">
+            Announcement
+          </label>
+
+          <textarea
+            id="announcement"
+            rows="4"
+            placeholder="Write an announcement..."
+          ></textarea>
+
+        </div>
+
+
+        <div class="form-grid">
+
+          <div class="form-group">
+
+            <label for="featuredTitle">
+              Featured Section Title
+            </label>
+
+            <input
+              id="featuredTitle"
+              type="text"
+              placeholder="Featured Videos"
+            >
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="categoryTitle">
+              Category Section Title
+            </label>
+
+            <input
+              id="categoryTitle"
+              type="text"
+              placeholder="Browse Categories"
+            >
+
+          </div>
+
+        </div>
+
+
+        <div class="form-grid">
+
+          <div class="form-group">
+
+            <label for="telegramButtonText">
+              Telegram Button Text
+            </label>
+
+            <input
+              id="telegramButtonText"
+              type="text"
+              placeholder="Join Telegram"
+            >
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="telegramLink">
+              Telegram Link
+            </label>
+
+            <input
+              id="telegramLink"
+              type="url"
+              placeholder="Telegram link..."
+            >
+
+          </div>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="footerText">
+            Footer Text
+          </label>
+
+          <textarea
+            id="footerText"
+            rows="3"
+            placeholder="Footer text..."
+          ></textarea>
+
+        </div>
+
+
+        <button
+          id="saveHomepageSettings"
+          class="primary-btn"
+          type="button"
+        >
+          💾 Save Homepage Settings
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         NOTIFICATIONS
+    ========================== -->
+    <section id="notifications" class="page">
+
+      <div class="page-header">
+
+        <div>
+          <span class="eyebrow">MESSAGING</span>
+          <h1>Notifications</h1>
+          <p>Send notifications to eligible users.</p>
+        </div>
+
+      </div>
+
+
+      <div class="panel">
+
+        <div class="form-group">
+
+          <label for="notificationTitle">
+            Notification Title
+          </label>
+
+          <input
+            id="notificationTitle"
+            type="text"
+            placeholder="New notification"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="notificationMessage">
+            Notification Message
+          </label>
+
+          <textarea
+            id="notificationMessage"
+            rows="6"
+            placeholder="Write notification..."
+          ></textarea>
+
+        </div>
+
+
+        <button
+          id="sendNotification"
+          class="primary-btn"
+          type="button"
+        >
+          📤 Send Notification
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         SUBSCRIPTIONS
+    ========================== -->
+    <section id="subscriptions" class="page">
+
+      <div class="page-header">
+
+        <div>
+          <span class="eyebrow">PREMIUM</span>
+          <h1>Subscriptions</h1>
+          <p>Manage premium membership settings.</p>
+        </div>
+
+      </div>
+
+
+      <div class="panel">
+
+        <div class="empty-state">
+
+          <div>💎</div>
+
+          <strong>Subscription Management</strong>
+
+          <p>
+            Premium plans can be connected to the backend.
+          </p>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         SETTINGS
+    ========================== -->
+    <section id="settings" class="page">
+
+      <div class="page-header">
+
+        <div>
+          <span class="eyebrow">SYSTEM</span>
+          <h1>Settings</h1>
+          <p>General website settings.</p>
+        </div>
+
+      </div>
+
+
+      <div class="panel">
+
+        <div class="form-group">
+
+          <label for="siteStatus">
+            Site Status
+          </label>
+
+          <select id="siteStatus">
+
+            <option value="online">
+              Online
+            </option>
+
+            <option value="maintenance">
+              Maintenance
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="adminEmail">
+            Admin Email
+          </label>
+
+          <input
+            id="adminEmail"
+            type="email"
+            placeholder="Admin email"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="adminSessionTimeout">
+            Admin Session Timeout
+          </label>
+
+          <select id="adminSessionTimeout">
+
+            <option value="15">
+              15 Minutes
+            </option>
+
+            <option value="30" selected>
+              30 Minutes
+            </option>
+
+            <option value="60">
+              60 Minutes
+            </option>
+
+            <option value="120">
+              120 Minutes
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <button
+          id="saveSettings"
+          class="primary-btn"
+          type="button"
+        >
+          💾 Save Settings
+        </button>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- =========================
+       CATEGORY MODAL
+  ========================== -->
+  <div id="categoryModal" class="modal">
+
+    <div class="modal-box">
+
+      <button
+        class="close-modal"
+        data-close="categoryModal"
+        type="button"
+      >
+        ×
+      </button>
+
+      <h2>Add Category</h2>
+
+      <form id="categoryForm">
+
+        <div class="form-group">
+
+          <label for="categoryName">
+            Category Name
+          </label>
+
+          <input
+            id="categoryName"
+            type="text"
+            required
+            placeholder="Example: Action"
+          >
+
+        </div>
+
+        <button
+          type="submit"
+          class="primary-btn"
+        >
+          Create Category
+        </button>
+
+      </form>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================
+       UPLOAD VIDEO MODAL
+  ========================== -->
+  <div id="uploadModal" class="modal">
+
+    <div class="modal-box">
+
+      <button
+        class="close-modal"
+        data-close="uploadModal"
+        type="button"
+      >
+        ×
+      </button>
+
+      <h2>Upload Video</h2>
+
+      <form id="uploadForm">
+
+        <div class="form-group">
+
+          <label for="videoTitle">
+            Video Title
+          </label>
+
+          <input
+            id="videoTitle"
+            type="text"
+            required
+            placeholder="Video title"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="videoDescription">
+            Description
+          </label>
+
+          <textarea
+            id="videoDescription"
+            rows="4"
+            placeholder="Optional description..."
+          ></textarea>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="videoCategory">
+            Category
+          </label>
+
+          <select id="videoCategory" required>
+
+            <option value="">
+              Select category
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="videoFile">
+            Video File
+          </label>
+
+          <input
+            id="videoFile"
+            type="file"
+            accept="video/*"
+            required
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="videoThumbnail">
+            Thumbnail
+          </label>
+
+          <input
+            id="videoThumbnail"
+            type="file"
+            accept="image/*"
+          >
+
+        </div>
+
+
+        <label class="checkbox-row">
+
+          <input
+            id="publishVideo"
+            type="checkbox"
+            checked
+          >
+
+          <span>
+            Publish immediately
+          </span>
+
+        </label>
+
+
+        <button
+          type="submit"
+          class="primary-btn"
+        >
+          🎬 Add Video
+        </button>
+
+      </form>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================
+       TOAST
+  ========================== -->
+  <div id="toast" class="toast"></div>
+
+
+  <!-- =====================================================
+       SUPABASE CONNECTION HELPER
+       ===================================================== -->
+  <script>
+
+    /*
+      ======================================================
+      ADMIN DATA CONNECTION
+
+      এই অংশটি Admin UI থেকে Supabase-এ data পাঠানোর
+      জন্য প্রস্তুত করা হয়েছে।
+
+      IMPORTANT:
+      তোমার Supabase database-এ table/column না থাকলে
+      save operation কাজ করবে না।
+
+      প্রথমে প্রয়োজনীয় database schema তৈরি করতে হবে।
+      ======================================================
+    */
+
+    window.AdminBackend = {
+
+      client: window.supabaseClient,
+
+      async testConnection() {
+
+        try {
+
+          /*
+            এখানে একটি lightweight request করা হচ্ছে।
+            Table না থাকলে error আসতে পারে।
+          */
+
+          const { error } =
+            await this.client
+              .from("site_settings")
+              .select("id")
+              .limit(1);
+
+          if (error) {
+
+            console.warn(
+              "Supabase connected, but site_settings table is not ready:",
+              error.message
+            );
+
+            return {
+              connected: true,
+              databaseReady: false,
+              error: error.message
+            };
+          }
+
+          console.log(
+            "Supabase database connection is working."
           );
 
-        console.log("Supabase connected.");
-        return true;
-      } catch (error) {
-        console.error("Supabase initialization failed:", error);
-        return false;
+          return {
+            connected: true,
+            databaseReady: true
+          };
+
+        } catch (error) {
+
+          console.error(
+            "Supabase connection error:",
+            error
+          );
+
+          return {
+            connected: false,
+            databaseReady: false,
+            error: error.message
+          };
+
+        }
+
+      },
+
+
+      async getSiteSettings() {
+
+        const { data, error } =
+          await this.client
+            .from("site_settings")
+            .select("*")
+            .limit(1)
+            .maybeSingle();
+
+        if (error) {
+
+          console.error(
+            "Could not load site settings:",
+            error
+          );
+
+          return null;
+        }
+
+        return data;
+
+      },
+
+
+      async saveSiteSettings(settings) {
+
+        const { data, error } =
+          await this.client
+            .from("site_settings")
+            .upsert(
+              settings,
+              {
+                onConflict: "id"
+              }
+            )
+            .select()
+            .single();
+
+        if (error) {
+
+          console.error(
+            "Could not save site settings:",
+            error
+          );
+
+          throw error;
+        }
+
+        return data;
+
+      },
+
+
+      async getCoinsSettings() {
+
+        const { data, error } =
+          await this.client
+            .from("coin_settings")
+            .select("*")
+            .limit(1)
+            .maybeSingle();
+
+        if (error) {
+
+          console.error(
+            "Could not load coin settings:",
+            error
+          );
+
+          return null;
+        }
+
+        return data;
+
+      },
+
+
+      async saveCoinsSettings(settings) {
+
+        const { data, error } =
+          await this.client
+            .from("coin_settings")
+            .upsert(
+              settings,
+              {
+                onConflict: "id"
+              }
+            )
+            .select()
+            .single();
+
+        if (error) {
+
+          console.error(
+            "Could not save coin settings:",
+            error
+          );
+
+          throw error;
+        }
+
+        return data;
+
+      },
+
+
+      async getAdSettings() {
+
+        const { data, error } =
+          await this.client
+            .from("ad_settings")
+            .select("*")
+            .limit(1)
+            .maybeSingle();
+
+        if (error) {
+
+          console.error(
+            "Could not load ad settings:",
+            error
+          );
+
+          return null;
+        }
+
+        return data;
+
+      },
+
+
+      async saveAdSettings(settings) {
+
+        const { data, error } =
+          await this.client
+            .from("ad_settings")
+            .upsert(
+              settings,
+              {
+                onConflict: "id"
+              }
+            )
+            .select()
+            .single();
+
+        if (error) {
+
+          console.error(
+            "Could not save ad settings:",
+            error
+          );
+
+          throw error;
+        }
+
+        return data;
+
       }
+
+    };
+
+
+    /*
+      ======================================================
+      COLLECT HOMEPAGE SETTINGS
+      ======================================================
+    */
+
+    function collectHomepageSettings() {
+
+      return {
+
+        id: 1,
+
+        website_name:
+          document.getElementById("websiteName")?.value || "",
+
+        welcome_title:
+          document.getElementById("welcomeTitle")?.value || "",
+
+        welcome_description:
+          document.getElementById("welcomeDescription")?.value || "",
+
+        announcement:
+          document.getElementById("announcement")?.value || "",
+
+        featured_title:
+          document.getElementById("featuredTitle")?.value || "",
+
+        category_title:
+          document.getElementById("categoryTitle")?.value || "",
+
+        telegram_button_text:
+          document.getElementById("telegramButtonText")?.value || "",
+
+        telegram_link:
+          document.getElementById("telegramLink")?.value || "",
+
+        footer_text:
+          document.getElementById("footerText")?.value || "",
+
+        updated_at:
+          new Date().toISOString()
+
+      };
+
     }
 
-    console.error("Supabase library failed to load.");
-    return false;
-  }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initSupabase);
-  } else {
-    initSupabase();
-  }
-</script>
-<script src="admin.js"></script>
+    /*
+      ======================================================
+      COLLECT COIN SETTINGS
+      ======================================================
+    */
+
+    function collectCoinSettings() {
+
+      return {
+
+        id: 1,
+
+        watch_ad_reward_enabled:
+          document.getElementById(
+            "watchAdRewardEnabled"
+          )?.checked ?? false,
+
+        ad_reward_coins:
+          Number(
+            document.getElementById(
+              "adRewardCoins"
+            )?.value || 0
+          ),
+
+        daily_ad_limit:
+          Number(
+            document.getElementById(
+              "dailyAdLimit"
+            )?.value || 0
+          ),
+
+        video_claim_cost:
+          Number(
+            document.getElementById(
+              "videoClaimCost"
+            )?.value || 0
+          ),
+
+        daily_reward_enabled:
+          document.getElementById(
+            "dailyRewardEnabled"
+          )?.checked ?? false,
+
+        daily_claim_ad_enabled:
+          document.getElementById(
+            "dailyClaimAdEnabled"
+          )?.checked ?? false,
+
+        daily_claim_ad_url:
+          document.getElementById(
+            "dailyClaimAdUrl"
+          )?.value || "",
+
+        referral_enabled:
+          document.getElementById(
+            "referralEnabled"
+          )?.checked ?? false,
+
+        referrer_reward:
+          Number(
+            document.getElementById(
+              "referrerReward"
+            )?.value || 0
+          ),
+
+        new_user_bonus:
+          Number(
+            document.getElementById(
+              "newUserBonus"
+            )?.value || 0
+          ),
+
+        updated_at:
+          new Date().toISOString()
+
+      };
+
+    }
+
+
+    /*
+      ======================================================
+      COLLECT AD SETTINGS
+      ======================================================
+    */
+
+    function collectAdSettings() {
+
+      return {
+
+        id: 1,
+
+        banner_ad_enabled:
+          document.getElementById(
+            "bannerAdEnabled"
+          )?.checked ?? false,
+
+        banner_ad_code:
+          document.getElementById(
+            "bannerAdCode"
+          )?.value || "",
+
+        direct_link_enabled:
+          document.getElementById(
+            "directLinkEnabled"
+          )?.checked ?? false,
+
+        direct_link_url:
+          document.getElementById(
+            "directLinkUrl"
+          )?.value || "",
+
+        popunder_enabled:
+          document.getElementById(
+            "popunderEnabled"
+          )?.checked ?? false,
+
+        popunder_code:
+          document.getElementById(
+            "popunderCode"
+          )?.value || "",
+
+        social_bar_enabled:
+          document.getElementById(
+            "socialBarEnabled"
+          )?.checked ?? false,
+
+        social_bar_code:
+          document.getElementById(
+            "socialBarCode"
+          )?.value || "",
+
+        video_ad_enabled:
+          document.getElementById(
+            "videoAdEnabled"
+          )?.checked ?? false,
+
+        video_ad_code:
+          document.getElementById(
+            "videoAdCode"
+          )?.value || "",
+
+        video_ad_delay:
+          Number(
+            document.getElementById(
+              "videoAdDelay"
+            )?.value || 30
+          ),
+
+        interstitial_enabled:
+          document.getElementById(
+            "interstitialEnabled"
+          )?.checked ?? false,
+
+        interstitial_code:
+          document.getElementById(
+            "interstitialCode"
+          )?.value || "",
+
+        custom_ad_enabled:
+          document.getElementById(
+            "customAdEnabled"
+          )?.checked ?? false,
+
+        custom_ad_code:
+          document.getElementById(
+            "customAdCode"
+          )?.value || "",
+
+        updated_at:
+          new Date().toISOString()
+
+      };
+
+    }
+
+
+    /*
+      ======================================================
+      LOAD HOMEPAGE SETTINGS
+      ======================================================
+    */
+
+    async function loadHomepageSettings() {
+
+      try {
+
+        const data =
+          await window.AdminBackend
+            .getSiteSettings();
+
+        if (!data) return;
+
+        const fields = {
+
+          websiteName:
+            data.website_name,
+
+          welcomeTitle:
+            data.welcome_title,
+
+          welcomeDescription:
+            data.welcome_description,
+
+          announcement:
+            data.announcement,
+
+          featuredTitle:
+            data.featured_title,
+
+          categoryTitle:
+            data.category_title,
+
+          telegramButtonText:
+            data.telegram_button_text,
+
+          telegramLink:
+            data.telegram_link,
+
+          footerText:
+            data.footer_text
+
+        };
+
+        Object.entries(fields)
+          .forEach(([id, value]) => {
+
+            const element =
+              document.getElementById(id);
+
+            if (
+              element &&
+              value !== undefined &&
+              value !== null
+            ) {
+
+              element.value = value;
+
+            }
+
+          });
+
+      } catch (error) {
+
+        console.warn(
+          "Homepage settings could not be loaded:",
+          error
+        );
+
+      }
+
+    }
+
+
+    /*
+      ======================================================
+      LOAD COIN SETTINGS
+      ======================================================
+    */
+
+    async function loadCoinSettings() {
+
+      try {
+
+        const data =
+          await window.AdminBackend
+            .getCoinsSettings();
+
+        if (!data) return;
+
+        const checkboxFields = {
+
+          watchAdRewardEnabled:
+            data.watch_ad_reward_enabled,
+
+          dailyRewardEnabled:
+            data.daily_reward_enabled,
+
+          dailyClaimAdEnabled:
+            data.daily_claim_ad_enabled,
+
+          referralEnabled:
+            data.referral_enabled
+
+        };
+
+        Object.entries(checkboxFields)
+          .forEach(([id, value]) => {
+
+            const element =
+              document.getElementById(id);
+
+            if (
+              element &&
+              value !== undefined &&
+              value !== null
+            ) {
+
+              element.checked = Boolean(value);
+
+            }
+
+          });
+
+
+        const valueFields = {
+
+          adRewardCoins:
+            data.ad_reward_coins,
+
+          dailyAdLimit:
+            data.daily_ad_limit,
+
+          videoClaimCost:
+            data.video_claim_cost,
+
+          dailyClaimAdUrl:
+            data.daily_claim_ad_url,
+
+          referrerReward:
+            data.referrer_reward,
+
+          newUserBonus:
+            data.new_user_bonus
+
+        };
+
+        Object.entries(valueFields)
+          .forEach(([id, value]) => {
+
+            const element =
+              document.getElementById(id);
+
+            if (
+              element &&
+              value !== undefined &&
+              value !== null
+            ) {
+
+              element.value = value;
+
+            }
+
+          });
+
+      } catch (error) {
+
+        console.warn(
+          "Coin settings could not be loaded:",
+          error
+        );
+
+      }
+
+    }
+
+
+    /*
+      ======================================================
+      LOAD AD SETTINGS
+      ======================================================
+    */
+
+    async function loadAdSettings() {
+
+      try {
+
+        const data =
+          await window.AdminBackend
+            .getAdSettings();
+
+        if (!data) return;
+
+
+        const checkboxFields = {
+
+          bannerAdEnabled:
+            data.banner_ad_enabled,
+
+          directLinkEnabled:
+            data.direct_link_enabled,
+
+          popunderEnabled:
+            data.popunder_enabled,
+
+          socialBarEnabled:
+            data.social_bar_enabled,
+
+          videoAdEnabled:
+            data.video_ad_enabled,
+
+          interstitialEnabled:
+            data.interstitial_enabled,
+
+          customAdEnabled:
+            data.custom_ad_enabled
+
+        };
+
+
+        Object.entries(checkboxFields)
+          .forEach(([id, value]) => {
+
+            const element =
+              document.getElementById(id);
+
+            if (
+              element &&
+              value !== undefined &&
+              value !== null
+            ) {
+
+              element.checked =
+                Boolean(value);
+
+            }
+
+          });
+
+
+        const valueFields = {
+
+          bannerAdCode:
+            data.banner_ad_code,
+
+          directLinkUrl:
+            data.direct_link_url,
+
+          popunderCode:
+            data.popunder_code,
+
+          socialBarCode:
+            data.social_bar_code,
+
+          videoAdCode:
+            data.video_ad_code,
+
+          videoAdDelay:
+            data.video_ad_delay,
+
+          interstitialCode:
+            data.interstitial_code,
+
+          customAdCode:
+            data.custom_ad_code
+
+        };
+
+
+        Object.entries(valueFields)
+          .forEach(([id, value]) => {
+
+            const element =
+              document.getElementById(id);
+
+            if (
+              element &&
+              value !== undefined &&
+              value !== null
+            ) {
+
+              element.value = value;
+
+            }
+
+          });
+
+      } catch (error) {
+
+        console.warn(
+          "Ad settings could not be loaded:",
+          error
+        );
+
+      }
+
+    }
+
+
+    /*
+      ======================================================
+      SAVE HOMEPAGE
+      ======================================================
+    */
+
+    document
+      .getElementById("saveHomepageSettings")
+      ?.addEventListener(
+        "click",
+        async function () {
+
+          const button = this;
+
+          try {
+
+            button.disabled = true;
+
+            button.textContent =
+              "⏳ Saving...";
+
+            const settings =
+              collectHomepageSettings();
+
+            await window.AdminBackend
+              .saveSiteSettings(settings);
+
+            button.textContent =
+              "✅ Saved & Published";
+
+          } catch (error) {
+
+            console.error(error);
+
+            button.textContent =
+              "❌ Save Failed";
+
+            alert(
+              "Homepage save হয়নি। Supabase table/schema এবং RLS policy check করো।"
+            );
+
+          } finally {
+
+            setTimeout(() => {
+
+              button.disabled = false;
+
+              button.textContent =
+                "💾 Save Homepage Settings";
+
+            }, 1800);
+
+          }
+
+        }
+      );
+
+
+    /*
+      ======================================================
+      SAVE COINS
+      ======================================================
+    */
+
+    document
+      .getElementById("saveCoinSettings")
+      ?.addEventListener(
+        "click",
+        async function () {
+
+          const button = this;
+
+          try {
+
+            button.disabled = true;
+
+            button.textContent =
+              "⏳ Saving...";
+
+            const settings =
+              collectCoinSettings();
+
+            await window.AdminBackend
+              .saveCoinsSettings(settings);
+
+            button.textContent =
+              "✅ Saved & Published";
+
+          } catch (error) {
+
+            console.error(error);
+
+            button.textContent =
+              "❌ Save Failed";
+
+            alert(
+              "Coin settings save হয়নি। Supabase table/schema এবং RLS policy check করো।"
+            );
+
+          } finally {
+
+            setTimeout(() => {
+
+              button.disabled = false;
+
+              button.textContent =
+                "💾 Save Coin Settings";
+
+            }, 1800);
+
+          }
+
+        }
+      );
+
+
+    /*
+      ======================================================
+      SAVE ADS
+      ======================================================
+    */
+
+    document
+      .getElementById("saveAdSettings")
+      ?.addEventListener(
+        "click",
+        async function () {
+
+          const button = this;
+
+          try {
+
+            button.disabled = true;
+
+            button.textContent =
+              "⏳ Saving...";
+
+            const settings =
+              collectAdSettings();
+
+            await window.AdminBackend
+              .saveAdSettings(settings);
+
+            button.textContent =
+              "✅ Saved & Published";
+
+          } catch (error) {
+
+            console.error(error);
+
+            button.textContent =
+              "❌ Save Failed";
+
+            alert(
+              "Ad settings save হয়নি। Supabase table/schema এবং RLS policy check করো।"
+            );
+
+          } finally {
+
+            setTimeout(() => {
+
+              button.disabled = false;
+
+              button.textContent =
+                "💾 Save Ad Settings";
+
+            }, 1800);
+
+          }
+
+        }
+      );
+
+
+    /*
+      ======================================================
+      STARTUP
+      ======================================================
+    */
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      async function () {
+
+        console.log(
+          "Admin Panel starting..."
+        );
+
+        await window.AdminBackend
+          .testConnection();
+
+        await loadHomepageSettings();
+
+        await loadCoinSettings();
+
+        await loadAdSettings();
+
+      }
+    );
+
+  </script>
+
+
+  <!-- =====================================================
+       EXISTING ADMIN JAVASCRIPT
+       ===================================================== -->
+  <script src="admin.js"></script>
 
 </body>
-</html>
+     </html>
